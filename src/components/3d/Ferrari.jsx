@@ -22,6 +22,17 @@ export default function Ferrari({ onIntroComplete, ...props }) {
     materials.Taillight_Glass.emissive = new THREE.Color("#ff0000")
     materials.Taillight_Glass.emissiveIntensity = 0
 
+    // Setup main windshield/window glass to be black and semi-transparent
+    materials.Glass_Gray.color = new THREE.Color("#000000")
+    materials.Glass_Gray.transparent = true
+    materials.Glass_Gray.opacity = 0.35 // Semi-transparent to reveal the seats inside
+    materials.Glass_Gray.roughness = 0.05
+    materials.Glass_Gray.metalness = 0.9
+    if (materials.Glass_Gray.clearcoat !== undefined) {
+      materials.Glass_Gray.clearcoat = 1.0
+      materials.Glass_Gray.clearcoatRoughness = 0.05
+    }
+
     const tl = gsap.timeline({
       onComplete: () => {
         if (onIntroComplete) onIntroComplete()
@@ -40,11 +51,18 @@ export default function Ferrari({ onIntroComplete, ...props }) {
     const posRR_Z = 1.496 * 1.15
     const posFR_Z = -1.154 * 1.15
 
-    // Initial state: Wheels way off-screen to the left and right (X axis)
+    // Initial state: Wheels way off-screen to the left and right (X axis), facing the camera
     gsap.set(wheelRL.current.position, { x: -15, z: posRL_Z })
+    gsap.set(wheelRL.current.rotation, { x: -Math.PI / 2, y: Math.PI / 2, z: 0 })
+
     gsap.set(wheelFL.current.position, { x: -15, z: posFL_Z })
+    gsap.set(wheelFL.current.rotation, { x: -Math.PI / 2, y: Math.PI / 2, z: 0 })
+
     gsap.set(wheelRR.current.position, { x: 15, z: posRR_Z })
+    gsap.set(wheelRR.current.rotation, { x: -Math.PI / 2, y: -Math.PI / 2, z: 0 })
+
     gsap.set(wheelFR.current.position, { x: 15, z: posFR_Z })
+    gsap.set(wheelFR.current.rotation, { x: -Math.PI / 2, y: -Math.PI / 2, z: 0 })
     
     // Chassis starts faded/scaled down. Initial rotation forced to face camera
     gsap.set(groupRef.current.rotation, { y: Math.PI })
@@ -54,23 +72,28 @@ export default function Ferrari({ onIntroComplete, ...props }) {
     tl.to(groupRef.current.scale, { x: 1, y: 1, z: 1, duration: 1.5, ease: "power3.out" })
 
     // Step 2: Wheels attach sequentially (Back Left, Back Right, Front Left, Front Right)
-    const rDur = 1.0 // Roll duration
+    const rDur = 1.5 // Roll duration (slower)
+    const sDur = 0.4 // Snap duration (slower)
     
-    // Back Left
-    tl.to(wheelRL.current.position, { x: posRL_X, duration: rDur, ease: "power3.out" }, "+=0.2")
-    tl.to(wheelRL.current.rotation, { z: `-=${Math.PI * 4}`, duration: rDur, ease: "power3.out" }, "<")
+    // Back Left (RL)
+    tl.to(wheelRL.current.position, { x: posRL_X, duration: rDur, ease: "power1.out" }, "+=0.2")
+    tl.to(wheelRL.current.rotation, { x: `-=${Math.PI * 4}`, duration: rDur, ease: "power1.out" }, "<")
+    tl.to(wheelRL.current.rotation, { y: 0, duration: sDur, ease: "power2.inOut" })
     
-    // Back Right
-    tl.to(wheelRR.current.position, { x: posRR_X, duration: rDur, ease: "power3.out" }, "-=0.5")
-    tl.to(wheelRR.current.rotation, { z: `+=${Math.PI * 4}`, duration: rDur, ease: "power3.out" }, "<")
+    // Back Right (RR)
+    tl.to(wheelRR.current.position, { x: posRR_X, duration: rDur, ease: "power1.out" })
+    tl.to(wheelRR.current.rotation, { x: `-=${Math.PI * 4}`, duration: rDur, ease: "power1.out" }, "<")
+    tl.to(wheelRR.current.rotation, { y: 0, duration: sDur, ease: "power2.inOut" })
     
-    // Front Left
-    tl.to(wheelFL.current.position, { x: posFL_X, duration: rDur, ease: "power3.out" }, "-=0.5")
-    tl.to(wheelFL.current.rotation, { z: `-=${Math.PI * 4}`, duration: rDur, ease: "power3.out" }, "<")
+    // Front Left (FL)
+    tl.to(wheelFL.current.position, { x: posFL_X, duration: rDur, ease: "power1.out" })
+    tl.to(wheelFL.current.rotation, { x: `-=${Math.PI * 4}`, duration: rDur, ease: "power1.out" }, "<")
+    tl.to(wheelFL.current.rotation, { y: 0, duration: sDur, ease: "power2.inOut" })
     
-    // Front Right
-    tl.to(wheelFR.current.position, { x: posFR_X, duration: rDur, ease: "power3.out" }, "-=0.5")
-    tl.to(wheelFR.current.rotation, { z: `+=${Math.PI * 4}`, duration: rDur, ease: "power3.out" }, "<")
+    // Front Right (FR)
+    tl.to(wheelFR.current.position, { x: posFR_X, duration: rDur, ease: "power1.out" })
+    tl.to(wheelFR.current.rotation, { x: `-=${Math.PI * 4}`, duration: rDur, ease: "power1.out" }, "<")
+    tl.to(wheelFR.current.rotation, { y: 0, duration: sDur, ease: "power2.inOut" })
 
     // Step 3: Chassis bump as wheels lock in
     tl.to(chassisRef.current.position, { y: "+=0.05", duration: 0.15, yoyo: true, repeat: 1, ease: "power1.inOut" })
@@ -132,10 +155,10 @@ export default function Ferrari({ onIntroComplete, ...props }) {
         <mesh geometry={nodes.wipers.geometry} material={materials.Tires} position={[-1.089, 0.006, 0.11]} />
         <mesh geometry={nodes.yellow_trim.geometry} material={materials.Ferrari_Yellow} material-color="#ff0000" position={[-1.397, -0.003, 0.047]} />
         
-        {/* Procedural Hardtop Roof - Hyper Polished */}
-        <mesh position={[0.0, 0, 0.32]} rotation={[0, 0, Math.PI / 2]} scale={[1, 1, 0.2]}>
-          <cylinderGeometry args={[0.55, 0.55, 0.95, 32, 1, false, -Math.PI / 2, Math.PI]} />
-          <meshPhysicalMaterial color="#0a0a0a" metalness={0.9} roughness={0.05} clearcoat={1.0} envMapIntensity={3.0} />
+        {/* Procedural Hardtop Roof - Flat Matte Black */}
+        <mesh position={[0.15, 0.0, 0.495]} rotation={[0, 0.02, 0]}>
+          <boxGeometry args={[0.85, 0.95, 0.02]} />
+          <meshStandardMaterial color="#151515" roughness={0.7} metalness={0.2} envMapIntensity={0.5} />
         </mesh>
 
         {/* Mansory-style Rear Wing */}
