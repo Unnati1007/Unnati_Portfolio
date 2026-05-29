@@ -114,17 +114,34 @@ export default function Ferrari({ onIntroComplete, ...props }) {
     tl.to(materials.Projector_Glass, { emissiveIntensity: 6, duration: 1.0, ease: "power2.out" }, "+=3.0")
     tl.to(materials.Taillight_Glass, { emissiveIntensity: 4, duration: 1.0, ease: "power2.out" }, "<")
 
-    // Idle float
+    // Step 6: Drive off zoom-past-camera transition
+    tl.to(groupRef.current.position, {
+      z: "+=12",
+      duration: 1.2,
+      ease: "power2.in"
+    }, "+=0.5")
+    
+    tl.to(materials.Projector_Glass, {
+      emissiveIntensity: 100,
+      duration: 0.6,
+      ease: "power2.in"
+    }, "<")
+    
+    tl.to(groupRef.current.scale, {
+      x: 1.5,
+      y: 1.5,
+      z: 1.5,
+      duration: 1.2,
+      ease: "power2.in"
+    }, "<")
+
     tl.add(() => {
-      gsap.to(groupRef.current.position, {
-        y: "+=0.03",
-        duration: 2,
-        yoyo: true,
-        repeat: -1,
-        ease: "sine.inOut"
-      })
+      if (onIntroComplete) onIntroComplete()
     })
 
+    return () => {
+      tl.kill()
+    }
   }, [onIntroComplete])
 
   return (
