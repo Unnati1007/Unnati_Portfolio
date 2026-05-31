@@ -11,6 +11,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
   const levitatingHeadphoneRef = useRef()
   const pcFansRef = useRef()
   const chairRef = useRef()
+  const chairInteraction = useRef({ isDragging: false, lastX: 0 })
   const roomGroupRef = useRef()
 
   const [hoveredProject, setHoveredProject] = useState(null)
@@ -294,6 +295,48 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         <mesh position={[1.6, -0.5275, 0.3]}><boxGeometry args={[0.04, 0.605, 0.04]} /><meshStandardMaterial color="#0c0a09" metalness={0.8} roughness={0.2} /></mesh>
         <mesh position={[-1.6, -0.5275, -0.7]}><boxGeometry args={[0.04, 0.605, 0.04]} /><meshStandardMaterial color="#0c0a09" metalness={0.8} roughness={0.2} /></mesh>
         <mesh position={[1.6, -0.5275, -0.7]}><boxGeometry args={[0.04, 0.605, 0.04]} /><meshStandardMaterial color="#0c0a09" metalness={0.8} roughness={0.2} /></mesh>
+
+        {/* Desk Drawer Unit (Right Side) */}
+        <group position={[1.25, -0.525, -0.05]}>
+          {/* Main Cabinet Body (Oak Wood to match desk) */}
+          <mesh>
+            <boxGeometry args={[0.5, 0.6, 0.9]} />
+            <meshStandardMaterial color={isDarkMode ? "#6b492f" : "#b89070"} roughness={0.8} />
+          </mesh>
+          
+          {/* Top Drawer */}
+          <mesh position={[0, 0.19, 0.46]}>
+            <boxGeometry args={[0.46, 0.18, 0.02]} />
+            <meshStandardMaterial color={isDarkMode ? "#5c3d25" : "#a88060"} roughness={0.7} />
+          </mesh>
+          {/* Top Drawer Handle (Metal) */}
+          <mesh position={[0, 0.19, 0.48]}>
+            <boxGeometry args={[0.2, 0.02, 0.02]} />
+            <meshStandardMaterial color="#d1d5db" roughness={0.4} metalness={0.8} />
+          </mesh>
+
+          {/* Middle Drawer */}
+          <mesh position={[0, -0.01, 0.46]}>
+            <boxGeometry args={[0.46, 0.18, 0.02]} />
+            <meshStandardMaterial color={isDarkMode ? "#5c3d25" : "#a88060"} roughness={0.7} />
+          </mesh>
+          {/* Middle Drawer Handle */}
+          <mesh position={[0, -0.01, 0.48]}>
+            <boxGeometry args={[0.2, 0.02, 0.02]} />
+            <meshStandardMaterial color="#d1d5db" roughness={0.4} metalness={0.8} />
+          </mesh>
+
+          {/* Bottom Drawer (Larger) */}
+          <mesh position={[0, -0.21, 0.46]}>
+            <boxGeometry args={[0.46, 0.18, 0.02]} />
+            <meshStandardMaterial color={isDarkMode ? "#5c3d25" : "#a88060"} roughness={0.7} />
+          </mesh>
+          {/* Bottom Drawer Handle */}
+          <mesh position={[0, -0.17, 0.48]}>
+            <boxGeometry args={[0.2, 0.02, 0.02]} />
+            <meshStandardMaterial color="#d1d5db" roughness={0.4} metalness={0.8} />
+          </mesh>
+        </group>
       </group>
 
       {/* ========================================================================= */}
@@ -322,10 +365,17 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           <meshStandardMaterial color="#0c0a09" roughness={0.8} />
         </mesh>
 
-        {/* Monitor Stand Column (Slightly taller as requested) */}
-        <mesh position={[0, -0.51, -0.05]}>
-          <cylinderGeometry args={[0.025, 0.025, 0.45]} />
-          <meshStandardMaterial color="#64748b" metalness={0.6} roughness={0.4} />
+        {/* Monitor Stand Base Plate (Proper black stand) */}
+        <mesh position={[0, -0.71, -0.05]}>
+          <boxGeometry args={[0.35, 0.015, 0.25]} />
+          {/* Subtle curved edges could be nice, but simple block works for 3D */}
+          <meshStandardMaterial color="#1a1a1a" roughness={0.7} metalness={0.2} />
+        </mesh>
+        
+        {/* Monitor Stand Column (Black to match base) */}
+        <mesh position={[0, -0.45, -0.05]}>
+          <cylinderGeometry args={[0.025, 0.025, 0.52]} />
+          <meshStandardMaterial color="#1a1a1a" metalness={0.4} roughness={0.6} />
         </mesh>
 
         {/* Ultrawide Curved Back Plate (Raised slightly) */}
@@ -349,6 +399,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         {/* Center Screen HTML Landing Page Content (Raised slightly) */}
         <Html
           transform
+          occlude="blending"
           distanceFactor={0.58}
           position={[0, -0.17, 0.026]}
           pointerEvents={sector === 'center' ? 'auto' : 'none'}
@@ -483,89 +534,185 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
 
       <group
         ref={chairRef}
-        position={[-0.35, -0.463, 0.72]}
+        position={[-0.35, -0.463, 0.90]}
         rotation={[0, 0.4, 0]}
         scale={0.78}
-        onClick={(e) => handleWallClick('center', e)}
-        onPointerOver={(sector !== 'center') ? handlePointerOver : undefined}
-        onPointerOut={handlePointerOut}
+        onPointerDown={(e) => {
+          e.stopPropagation()
+          if (sector === 'center') {
+            chairInteraction.current.isDragging = true
+            chairInteraction.current.lastX = e.clientX
+            e.target.setPointerCapture(e.pointerId)
+            document.body.style.cursor = 'grabbing'
+          } else {
+            handleWallClick('center', e)
+          }
+        }}
+        onPointerUp={(e) => {
+          if (chairInteraction.current.isDragging) {
+            chairInteraction.current.isDragging = false
+            try { e.target.releasePointerCapture(e.pointerId) } catch (err) {}
+            if (sector === 'center') document.body.style.cursor = 'grab'
+          }
+        }}
+        onPointerMove={(e) => {
+          if (chairInteraction.current.isDragging && chairRef.current) {
+            const deltaX = e.clientX - chairInteraction.current.lastX
+            chairRef.current.rotation.y += deltaX * 0.015
+            chairInteraction.current.lastX = e.clientX
+          }
+        }}
+        onPointerOver={(e) => {
+          if (sector === 'center') {
+            document.body.style.cursor = 'grab'
+          } else {
+            handlePointerOver(e)
+          }
+        }}
+        onPointerOut={(e) => {
+          if (chairInteraction.current.isDragging) {
+            chairInteraction.current.isDragging = false
+            try { e.target.releasePointerCapture(e.pointerId) } catch (err) {}
+          }
+          if (sector === 'center') {
+            document.body.style.cursor = 'auto'
+          } else {
+            handlePointerOut(e)
+          }
+        }}
       >
-        {/* Five-Leg Star Base */}
-        <mesh position={[0, -0.42, 0.1]}>
-          <cylinderGeometry args={[0.24, 0.24, 0.02, 5]} />
-          <meshStandardMaterial color="#0c0d0f" metalness={0.9} roughness={0.2} />
-        </mesh>
+        {/* Modern Cyber/Herman-Miller Style Sharp Star Base */}
+        <group position={[0, -0.44, 0.1]}>
+          {/* Central Hub */}
+          <mesh><cylinderGeometry args={[0.05, 0.06, 0.04, 8]} /><meshStandardMaterial color="#0c0d0f" metalness={0.9} roughness={0.2} /></mesh>
+          {/* Sharp Spider Legs */}
+          {Array.from({ length: 5 }).map((_, i) => (
+            <mesh key={`leg-${i}`} position={[Math.sin((i * Math.PI * 2) / 5) * 0.15, 0, Math.cos((i * Math.PI * 2) / 5) * 0.15]} rotation={[Math.PI / 2, 0, -(i * Math.PI * 2) / 5]}>
+              <cylinderGeometry args={[0.015, 0.005, 0.28, 4]} />
+              <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.2} />
+            </mesh>
+          ))}
+        </group>
 
         {/* 5 Roller Wheels (sitting perfectly flat on the floor) */}
         <group position={[0, 0, 0.1]}>
-          <mesh position={[0, -0.455, 0.22]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.015, 0.015, 0.02, 8]} /><meshStandardMaterial color="#1a1a1a" roughness={0.6} /></mesh>
-          <mesh position={[0.21, -0.455, 0.07]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.015, 0.015, 0.02, 8]} /><meshStandardMaterial color="#1a1a1a" roughness={0.6} /></mesh>
-          <mesh position={[-0.21, -0.455, 0.07]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.015, 0.015, 0.02, 8]} /><meshStandardMaterial color="#1a1a1a" roughness={0.6} /></mesh>
-          <mesh position={[0.13, -0.455, -0.17]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.015, 0.015, 0.02, 8]} /><meshStandardMaterial color="#1a1a1a" roughness={0.6} /></mesh>
-          <mesh position={[-0.13, -0.455, -0.17]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.015, 0.015, 0.02, 8]} /><meshStandardMaterial color="#1a1a1a" roughness={0.6} /></mesh>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <mesh key={`wheel-${i}`} position={[Math.sin((i * Math.PI * 2) / 5) * 0.27, -0.455, Math.cos((i * Math.PI * 2) / 5) * 0.27]} rotation={[0, -(i * Math.PI * 2) / 5, Math.PI / 2]}>
+              <cylinderGeometry args={[0.02, 0.02, 0.025, 12]} />
+              <meshStandardMaterial color="#1a1a1a" roughness={0.6} />
+            </mesh>
+          ))}
         </group>
 
         {/* Hydraulic Chrome Strut */}
-        <mesh position={[0, -0.24, 0.1]}>
-          <cylinderGeometry args={[0.02, 0.02, 0.36, 8]} />
+        <mesh position={[0, -0.25, 0.1]}>
+          <cylinderGeometry args={[0.018, 0.022, 0.34, 8]} />
           <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
         </mesh>
 
-        {/* Double-Layer Seat Cushion (Carbon Fiber base + Mesh Top) */}
-        {/* Carbon Fiber Under-shell */}
-        <mesh position={[0, -0.07, 0.1]}>
-          <boxGeometry args={[0.42, 0.02, 0.42]} />
-          <meshStandardMaterial color="#111827" roughness={0.5} metalness={0.8} />
-        </mesh>
-        {/* Soft fabric mesh cushion */}
-        <mesh position={[0, -0.045, 0.1]}>
-          <boxGeometry args={[0.4, 0.03, 0.4]} />
-          <meshStandardMaterial color={isDarkMode ? "#1f2937" : "#4b5563"} roughness={0.85} />
-        </mesh>
+        {/* BLUE FABRIC OFFICE CHAIR (Like Reference Image) */}
+        
+        {/* Seat Cushion (Light blue fabric on black frame) */}
+        <group position={[0, -0.05, 0.1]}>
+          {/* Black Plastic Base under seat */}
+          <mesh position={[0, -0.02, 0]}>
+            <boxGeometry args={[0.38, 0.04, 0.42]} />
+            <meshStandardMaterial color="#111111" roughness={0.8} />
+          </mesh>
+          {/* Blue Fabric Seat Cushion */}
+          <mesh position={[0, 0.015, 0]}>
+            <boxGeometry args={[0.4, 0.05, 0.44]} />
+            <meshStandardMaterial color="#94a3b8" roughness={0.9} />
+          </mesh>
+        </group>
 
-        {/* Sleek Ergonomic Loop Armrests */}
+        {/* Structural Spine (Black Plastic) */}
+        <group position={[0, 0.15, -0.15]} rotation={[0.1, 0, 0]}>
+          {/* Central lower spine connecting seat to backrest */}
+          <mesh position={[0, -0.05, 0]}>
+            <boxGeometry args={[0.08, 0.25, 0.04]} />
+            <meshStandardMaterial color="#111111" roughness={0.8} />
+          </mesh>
+        </group>
+
+        {/* Backrest (Tall Blue Fabric pad, Black shell) */}
+        <group position={[0, 0.35, -0.1]} rotation={[0.15, 0, 0]}>
+          {/* Black Outer Shell */}
+          <mesh position={[0, -0.05, -0.02]}>
+            <boxGeometry args={[0.34, 0.42, 0.04]} />
+            <meshStandardMaterial color="#111111" roughness={0.8} />
+          </mesh>
+          {/* Inner Blue Fabric Cushion */}
+          <mesh position={[0, -0.05, 0.01]}>
+            <boxGeometry args={[0.32, 0.4, 0.04]} />
+            <meshStandardMaterial color="#94a3b8" roughness={0.9} />
+          </mesh>
+        </group>
+
+        {/* Headrest (Blue Fabric, black bracket) */}
+        <group position={[0, 0.6, -0.14]} rotation={[0.2, 0, 0]}>
+          {/* Headrest support bracket (Black) */}
+          <mesh position={[0, -0.06, -0.02]}>
+            <boxGeometry args={[0.04, 0.12, 0.03]} />
+            <meshStandardMaterial color="#111111" roughness={0.8} />
+          </mesh>
+          
+          {/* Headrest Cushion */}
+          <mesh position={[0, 0.02, 0.02]}>
+            <boxGeometry args={[0.24, 0.14, 0.04]} />
+            <meshStandardMaterial color="#94a3b8" roughness={0.9} />
+          </mesh>
+        </group>
+
+        {/* Loop Armrests (Black plastic loop with blue pad) */}
         {/* Left Armrest */}
-        <group position={[-0.21, 0.04, 0.1]}>
-          <mesh><boxGeometry args={[0.012, 0.15, 0.03]} /><meshStandardMaterial color="#0c0d0f" roughness={0.4} /></mesh>
-          <mesh position={[0, 0.075, 0]}><boxGeometry args={[0.03, 0.015, 0.24]} /><meshStandardMaterial color="#111827" roughness={0.7} /></mesh>
+        <group position={[-0.22, 0.1, 0.05]}>
+          {/* Armrest loop frame parts */}
+          {/* Back vertical arm */}
+          <mesh position={[0, -0.05, -0.1]} rotation={[-0.2, 0, 0]}>
+            <boxGeometry args={[0.02, 0.2, 0.03]} />
+            <meshStandardMaterial color="#111111" roughness={0.8} />
+          </mesh>
+          {/* Front vertical arm */}
+          <mesh position={[0, -0.08, 0.1]} rotation={[0.2, 0, 0]}>
+            <boxGeometry args={[0.02, 0.15, 0.03]} />
+            <meshStandardMaterial color="#111111" roughness={0.8} />
+          </mesh>
+          {/* Top horizontal arm */}
+          <mesh position={[0, 0.04, 0]}>
+            <boxGeometry args={[0.03, 0.02, 0.24]} />
+            <meshStandardMaterial color="#111111" roughness={0.8} />
+          </mesh>
+          {/* Flat Pad on top (Blue fabric) */}
+          <mesh position={[0, 0.06, 0]}>
+            <boxGeometry args={[0.04, 0.02, 0.2]} />
+            <meshStandardMaterial color="#94a3b8" roughness={0.9} />
+          </mesh>
         </group>
+        
         {/* Right Armrest */}
-        <group position={[0.21, 0.04, 0.1]}>
-          <mesh><boxGeometry args={[0.012, 0.15, 0.03]} /><meshStandardMaterial color="#0c0d0f" roughness={0.4} /></mesh>
-          <mesh position={[0, 0.075, 0]}><boxGeometry args={[0.03, 0.015, 0.24]} /><meshStandardMaterial color="#111827" roughness={0.7} /></mesh>
+        <group position={[0.22, 0.1, 0.05]}>
+          {/* Back vertical arm */}
+          <mesh position={[0, -0.05, -0.1]} rotation={[-0.2, 0, 0]}>
+            <boxGeometry args={[0.02, 0.2, 0.03]} />
+            <meshStandardMaterial color="#111111" roughness={0.8} />
+          </mesh>
+          {/* Front vertical arm */}
+          <mesh position={[0, -0.08, 0.1]} rotation={[0.2, 0, 0]}>
+            <boxGeometry args={[0.02, 0.15, 0.03]} />
+            <meshStandardMaterial color="#111111" roughness={0.8} />
+          </mesh>
+          {/* Top horizontal arm */}
+          <mesh position={[0, 0.04, 0]}>
+            <boxGeometry args={[0.03, 0.02, 0.24]} />
+            <meshStandardMaterial color="#111111" roughness={0.8} />
+          </mesh>
+          {/* Flat Pad on top (Blue fabric) */}
+          <mesh position={[0, 0.06, 0]}>
+            <boxGeometry args={[0.04, 0.02, 0.2]} />
+            <meshStandardMaterial color="#94a3b8" roughness={0.9} />
+          </mesh>
         </group>
-
-        {/* Ergonomic Mesh Backrest with Exoskeleton Support Spine */}
-        {/* Back Spine Support (Glowing in Dark Mode) */}
-        <mesh position={[0, 0.26, -0.13]} rotation={[0.12, 0, 0]}>
-          <boxGeometry args={[0.03, 0.55, 0.03]} />
-          <meshStandardMaterial
-            color={isDarkMode ? "#8b5cf6" : "#4f46e5"}
-            emissive={isDarkMode ? "#8b5cf6" : "#4f46e5"}
-            emissiveIntensity={isDarkMode ? 3.0 : 0.0}
-            roughness={0.2}
-          />
-        </mesh>
-        {/* Backrest Frame */}
-        <mesh position={[0, 0.25, -0.1]} rotation={[0.12, 0, 0]}>
-          <boxGeometry args={[0.38, 0.52, 0.02]} />
-          <meshStandardMaterial color="#0c0d0f" roughness={0.3} metalness={0.7} />
-        </mesh>
-        {/* Backrest Mesh Panel */}
-        <mesh position={[0, 0.25, -0.09]} rotation={[0.12, 0, 0]}>
-          <boxGeometry args={[0.34, 0.48, 0.005]} />
-          <meshStandardMaterial color="#1f2937" transparent opacity={0.65} roughness={0.9} />
-        </mesh>
-
-        {/* Separate Ergonomic Headrest */}
-        <mesh position={[0, 0.56, -0.14]} rotation={[0.15, 0, 0]}>
-          <boxGeometry args={[0.01, 0.12, 0.01]} />
-          <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.1} />
-        </mesh>
-        <mesh position={[0, 0.61, -0.12]} rotation={[0.15, 0, 0]}>
-          <boxGeometry args={[0.22, 0.08, 0.04]} />
-          <meshStandardMaterial color={isDarkMode ? "#1f2937" : "#4b5563"} roughness={0.8} />
-        </mesh>
       </group>
 
       {/* ========================================================================= */}
@@ -622,6 +769,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         {/* Left Screen HTML Content - Light Glassmorphic Dashboard */}
         <Html
           transform
+          occlude="blending"
           distanceFactor={0.8}
           position={[0, 0, 0.018]}
           pointerEvents={sector === 'left' ? 'auto' : 'none'}
@@ -718,6 +866,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         {/* Right Screen HTML Content - Light Glassmorphic Dashboard */}
         <Html
           transform
+          occlude="blending"
           distanceFactor={0.8}
           position={[0, 0, 0.018]}
           pointerEvents={sector === 'right' ? 'auto' : 'none'}
@@ -833,13 +982,12 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
 
         {/* LED Glowing strips on the inner frame (Violet/Neon Purple) */}
         {/* Base inner strip */}
-        <mesh position={[0.01, 0.031, 0]}>
+        <mesh position={[0.01, 0.031, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[0.16, 0.16]} />
           <meshStandardMaterial
             color="#a78bfa"
             emissive="#8b5cf6"
-            emissiveIntensity={isDarkMode ? 5.0 : 1.5}
-            rotation={[-Math.PI / 2, 0, 0]}
+            emissiveIntensity={isDarkMode ? 0.3 : 0.05}
           />
         </mesh>
         {/* Spine inner strip */}
@@ -848,7 +996,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           <meshStandardMaterial
             color="#a78bfa"
             emissive="#8b5cf6"
-            emissiveIntensity={isDarkMode ? 5.0 : 1.5}
+            emissiveIntensity={isDarkMode ? 0.3 : 0.05}
           />
         </mesh>
         {/* Top arm inner strip */}
@@ -857,57 +1005,69 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           <meshStandardMaterial
             color="#a78bfa"
             emissive="#8b5cf6"
-            emissiveIntensity={isDarkMode ? 5.0 : 1.5}
+            emissiveIntensity={isDarkMode ? 0.3 : 0.05}
           />
         </mesh>
 
-        {/* Levitating and Rotating Headphone */}
-        <group ref={levitatingHeadphoneRef} position={[0, 0.22, 0]}>
-          {/* Headphone Earcups */}
+        {/* Levitating and Rotating Headphone (Sleek Modern Premium Design) */}
+        <group ref={levitatingHeadphoneRef} position={[0.03, 0.22, 0]} scale={[1.4, 1.4, 1.4]}>
+          {/* Headphone Earcups (Classic Round Over-Ear shape for high-end look) */}
           {/* Left Earcup */}
-          <group position={[-0.055, 0, 0]} rotation={[0, 0, -0.08]}>
-            <mesh>
-              <boxGeometry args={[0.024, 0.075, 0.055]} />
-              <meshStandardMaterial color="#1a1a1a" roughness={0.4} />
+          <group position={[-0.05, 0, 0]} rotation={[0, 0, -0.05]}>
+            {/* Outer shell (Silver metallic) */}
+            <mesh rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.032, 0.032, 0.02, 32]} />
+              <meshStandardMaterial color="#d1d5db" roughness={0.2} metalness={0.9} />
             </mesh>
-            {/* Earpad cushion */}
-            <mesh position={[0.005, 0, 0]}>
-              <boxGeometry args={[0.008, 0.07, 0.05]} />
-              <meshStandardMaterial color="#111111" roughness={0.7} />
+            {/* Earpad cushion (Black leather) */}
+            <mesh position={[0.012, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.032, 0.032, 0.018, 32]} />
+              <meshStandardMaterial color="#111111" roughness={0.8} />
+            </mesh>
+            {/* Inner speaker grill */}
+            <mesh position={[0.02, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+              <circleGeometry args={[0.025, 32]} />
+              <meshStandardMaterial color="#050505" roughness={0.9} />
             </mesh>
           </group>
           {/* Right Earcup */}
-          <group position={[0.055, 0, 0]} rotation={[0, 0, 0.08]}>
-            <mesh>
-              <boxGeometry args={[0.024, 0.075, 0.055]} />
-              <meshStandardMaterial color="#1a1a1a" roughness={0.4} />
+          <group position={[0.05, 0, 0]} rotation={[0, 0, 0.05]}>
+            {/* Outer shell (Silver metallic) */}
+            <mesh rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.032, 0.032, 0.02, 32]} />
+              <meshStandardMaterial color="#d1d5db" roughness={0.2} metalness={0.9} />
             </mesh>
-            {/* Earpad cushion */}
-            <mesh position={[-0.005, 0, 0]}>
-              <boxGeometry args={[0.008, 0.07, 0.05]} />
-              <meshStandardMaterial color="#111111" roughness={0.7} />
+            {/* Earpad cushion (Black leather) */}
+            <mesh position={[-0.012, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.032, 0.032, 0.018, 32]} />
+              <meshStandardMaterial color="#111111" roughness={0.8} />
+            </mesh>
+            {/* Inner speaker grill */}
+            <mesh position={[-0.02, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
+              <circleGeometry args={[0.025, 32]} />
+              <meshStandardMaterial color="#050505" roughness={0.9} />
             </mesh>
           </group>
 
-          {/* Headphone Arch Band */}
-          <mesh position={[0, 0.038, 0]} rotation={[0, 0, 0]}>
-            <torusGeometry args={[0.052, 0.006, 8, 24, Math.PI]} />
-            <meshStandardMaterial color="#111111" roughness={0.5} />
+          {/* Headphone Arch Band (Sleek wide curve) */}
+          <mesh position={[0, 0.045, 0]} rotation={[0, 0, 0]}>
+            <torusGeometry args={[0.058, 0.006, 16, 32, Math.PI]} />
+            <meshStandardMaterial color="#1a1a1a" roughness={0.4} />
           </mesh>
           {/* Inner headband padding */}
-          <mesh position={[0, 0.033, 0]} rotation={[0, 0, 0]}>
-            <torusGeometry args={[0.048, 0.004, 6, 24, Math.PI]} />
-            <meshStandardMaterial color="#1f2937" roughness={0.8} />
+          <mesh position={[0, 0.04, 0]} rotation={[0, 0, 0]}>
+            <torusGeometry args={[0.056, 0.004, 12, 32, Math.PI]} />
+            <meshStandardMaterial color="#374151" roughness={0.9} />
           </mesh>
 
-          {/* Earcup extension forks */}
-          <mesh position={[-0.048, 0.02, 0]} rotation={[0, 0, -0.4]}>
-            <boxGeometry args={[0.005, 0.035, 0.015]} />
-            <meshStandardMaterial color="#2d3748" roughness={0.3} metalness={0.7} />
+          {/* Earcup extension sliders (Metal pins) */}
+          <mesh position={[-0.057, 0.03, 0]} rotation={[0, 0, -0.05]}>
+            <cylinderGeometry args={[0.003, 0.003, 0.04, 16]} />
+            <meshStandardMaterial color="#9ca3af" roughness={0.1} metalness={1.0} />
           </mesh>
-          <mesh position={[0.048, 0.02, 0]} rotation={[0, 0, 0.4]}>
-            <boxGeometry args={[0.005, 0.035, 0.015]} />
-            <meshStandardMaterial color="#2d3748" roughness={0.3} metalness={0.7} />
+          <mesh position={[0.057, 0.03, 0]} rotation={[0, 0, 0.05]}>
+            <cylinderGeometry args={[0.003, 0.003, 0.04, 16]} />
+            <meshStandardMaterial color="#9ca3af" roughness={0.1} metalness={1.0} />
           </mesh>
         </group>
       </group>
@@ -916,23 +1076,67 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
       {/* 9. KEYBOARD & MOUSE (WHITE/SILVER MODERN SETUP - SITTING ON DESK) */}
       {/* ========================================================================= */}
 
-      <group position={[0, -0.175, 0.25]}>
-        {/* Keyboard Base */}
-        <mesh position={[0, 0.0075, 0]}>
-          <boxGeometry args={[0.48, 0.015, 0.15]} />
-          <meshStandardMaterial color="#cbd5e1" metalness={0.8} roughness={0.2} />
-        </mesh>
-        {/* Keys (White) */}
-        <mesh position={[0, 0.0175, 0]}>
-          <boxGeometry args={[0.46, 0.005, 0.13]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.4} />
+      {/* Shifted further back on the table (Z changed from 0.02 to -0.15) */}
+      <group position={[0, -0.175, -0.15]}>
+        {/* Extended Desk Mousepad (Black) */}
+        <mesh position={[0.05, 0.002, 0]}>
+          <boxGeometry args={[0.9, 0.004, 0.3]} />
+          <meshStandardMaterial color="#111111" roughness={0.9} />
         </mesh>
 
-        {/* Mouse (Sleek White Magic Mouse style) */}
-        <mesh position={[0.32, 0.01, 0.02]}>
-          <boxGeometry args={[0.055, 0.02, 0.095]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.1} />
+        {/* Keyboard Base (Scaled up) */}
+        <mesh position={[0, 0.01, 0]}>
+          <boxGeometry args={[0.58, 0.015, 0.2]} />
+          <meshStandardMaterial color="#cbd5e1" metalness={0.8} roughness={0.2} />
         </mesh>
+        
+        {/* Detailed Keyboard Keys (Mechanical 75% style layout with sculpted keycaps) */}
+        <group position={[0, 0.0125, 0]}>
+          {/* Generate a 5x14 grid of individual keycaps (Larger keys) */}
+          {Array.from({ length: 5 }).map((_, row) => 
+            Array.from({ length: 14 }).map((_, col) => {
+              // Leave a gap for the spacebar
+              if (row === 4 && col >= 4 && col <= 9) return null;
+              
+              // Sculpted profile tilt (makes it look like a high-end mechanical keyboard)
+              const tilt = (row - 2.5) * 0.05;
+              
+              return (
+                <group key={`key-${row}-${col}`} position={[-0.25 + col * 0.039, 0.005, -0.07 + row * 0.035]}>
+                  <mesh rotation={[tilt, Math.PI / 4, 0]}>
+                    {/* A 4-segment cylinder creates a perfect tapered keycap shape! */}
+                    <cylinderGeometry args={[0.016, 0.019, 0.014, 4]} />
+                    <meshStandardMaterial color={
+                      // Modifier keys darker gray, alphas white
+                      (col === 0 || col === 13 || col === 12 || row === 0 || (row === 4 && col < 4)) ? "#94a3b8" : "#ffffff"
+                    } roughness={0.3} metalness={0.1} />
+                  </mesh>
+                </group>
+              );
+            })
+          )}
+          {/* Spacebar */}
+          <group position={[0.004, 0.005, 0.07]}>
+             <mesh>
+               <boxGeometry args={[0.22, 0.014, 0.027]} />
+               <meshStandardMaterial color="#ffffff" roughness={0.3} metalness={0.1} />
+             </mesh>
+          </group>
+        </group>
+
+        {/* Mouse (Larger and shifted closer to keyboard) */}
+        <group position={[0.34, 0.01, 0.02]}>
+          {/* Curved Pebble Body using scaled sphere for perfect curves */}
+          <mesh position={[0, 0.008, 0]} scale={[0.6, 0.25, 1.05]}>
+            <sphereGeometry args={[0.06, 32, 16]} />
+            <meshStandardMaterial color="#ffffff" roughness={0.15} />
+          </mesh>
+          {/* Scroll Wheel */}
+          <mesh position={[0, 0.02, -0.025]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.007, 0.007, 0.006, 16]} />
+            <meshStandardMaterial color="#1a1a1a" roughness={0.6} />
+          </mesh>
+        </group>
       </group>
 
       {/* ========================================================================= */}
@@ -960,25 +1164,60 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
 
       {/* Origami Stone Art Piece Removed as requested */}
 
-      {/* Leather Notebook/Planner (placed left-center, from reference image) */}
-      <group position={[-0.26, -0.175, 0.3]} rotation={[0, 0.04, 0]}>
-        {/* Cover */}
-        <mesh position={[0, 0.006, 0]}><boxGeometry args={[0.12, 0.012, 0.16]} /><meshStandardMaterial color="#ea580c" roughness={0.65} /></mesh>
-        {/* Pages */}
-        <mesh position={[0.004, 0.006, 0]}><boxGeometry args={[0.11, 0.01, 0.15]} /><meshBasicMaterial color="#fffff8" /></mesh>
-      </group>
+      {/* Leather Diary / Notebook (Premium Moleskine Style with pen on top) */}
+      <group position={[0.3, -0.175, 0.25]} rotation={[0, -0.4, 0]}>
+        {/* Bottom Cover */}
+        <mesh position={[0, 0.002, 0]}>
+          <boxGeometry args={[0.132, 0.004, 0.182]} />
+          <meshStandardMaterial color="#111827" roughness={0.8} />
+        </mesh>
+        {/* Paper Pages (slightly recessed) */}
+        <mesh position={[0.003, 0.008, 0]}>
+          <boxGeometry args={[0.124, 0.008, 0.176]} />
+          <meshBasicMaterial color="#fdfbf7" />
+        </mesh>
+        {/* Top Cover */}
+        <mesh position={[0, 0.014, 0]}>
+          <boxGeometry args={[0.132, 0.004, 0.182]} />
+          <meshStandardMaterial color="#111827" roughness={0.8} />
+        </mesh>
+        {/* Spine (Dark Leather binding) */}
+        <mesh position={[-0.064, 0.008, 0]}>
+          <boxGeometry args={[0.004, 0.016, 0.182]} />
+          <meshStandardMaterial color="#030712" roughness={0.9} />
+        </mesh>
+        {/* Elastic Strap (Classic Notebook Feature) */}
+        <mesh position={[0.05, 0.008, 0]}>
+          <boxGeometry args={[0.01, 0.017, 0.183]} />
+          <meshStandardMaterial color="#374151" roughness={0.9} />
+        </mesh>
+        {/* Bookmark Ribbon */}
+        <mesh position={[0.065, 0.008, 0.04]}>
+          <boxGeometry args={[0.002, 0.012, 0.03]} />
+          <meshStandardMaterial color="#dc2626" roughness={0.9} />
+        </mesh>
 
-      {/* Silver/White Pen (from reference image) */}
-      <group position={[-0.37, -0.175, 0.32]} rotation={[0, -Math.PI / 6, 0]}>
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.004, 0.004, 0.14, 8]} />
-          <meshStandardMaterial color="#e2e8f0" roughness={0.4} metalness={0.8} />
-        </mesh>
-        {/* Pen tip */}
-        <mesh position={[0, 0, -0.075]} rotation={[Math.PI / 2, 0, 0]}>
-          <coneGeometry args={[0.004, 0.01, 8]} />
-          <meshStandardMaterial color="#0f172a" roughness={0.2} />
-        </mesh>
+        {/* Silver/White Premium Pen sitting on top of the notebook */}
+        <group position={[0.02, 0.018, 0]} rotation={[0, 0.4, Math.PI / 2]}>
+          {/* Wait, if it's laying flat on the notebook, it should be rotated along X to lay down. */}
+          {/* Actually the previous pen used rotation={[Math.PI / 2, 0, 0]} inside the group to lay flat. */}
+        </group>
+        <group position={[0.01, 0.018, 0]} rotation={[0, 0.3, 0]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.003, 0.003, 0.12, 16]} />
+            <meshStandardMaterial color="#e2e8f0" roughness={0.3} metalness={0.9} />
+          </mesh>
+          {/* Pen tip */}
+          <mesh position={[0, 0, -0.065]} rotation={[Math.PI / 2, 0, 0]}>
+            <coneGeometry args={[0.003, 0.01, 16]} />
+            <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
+          </mesh>
+          {/* Pen clip */}
+          <mesh position={[0.003, 0.002, 0.04]}>
+            <boxGeometry args={[0.002, 0.002, 0.03]} />
+            <meshStandardMaterial color="#94a3b8" metalness={0.9} roughness={0.1} />
+          </mesh>
+        </group>
       </group>
 
       {/* Potted Plant (on desk right, from reference image) */}
@@ -1115,46 +1354,82 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
       {/* 11. DESK LAMP & PEN STAND (COZY NIGHT LIGHT TOGGLE) */}
       {/* ========================================================================= */}
 
-      {/* Pen Stand (Separate object next to the lamp) */}
-      <group position={[-0.65, -0.175, 0.05]}>
-        {/* Pen Cup */}
-        <mesh position={[0, 0.055, 0]}>
-          <cylinderGeometry args={[0.04, 0.035, 0.11, 16]} />
-          <meshStandardMaterial color="#1f2937" roughness={0.7} />
+      {/* Pen Stand (Larger, more detailed, pushed back on desk) */}
+      <group position={[-1.0, -0.175, -0.3]}>
+        {/* Pen Cup Main Body */}
+        <mesh position={[0, 0.07, 0]}>
+          <cylinderGeometry args={[0.05, 0.045, 0.14, 32]} />
+          <meshStandardMaterial color="#1f2937" roughness={0.7} metalness={0.2} />
+        </mesh>
+        
+        {/* Hollow interior illusion (Dark circle at the top) */}
+        <mesh position={[0, 0.141, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[0.046, 32]} />
+          <meshBasicMaterial color="#050505" />
         </mesh>
 
-        {/* 3 Pens inside the holder cup */}
-        <group position={[0, 0, 0]}>
-          {/* Pen 1 (angled left) */}
-          <mesh position={[-0.015, 0.09, -0.015]} rotation={[0.2, 0.1, -0.3]}>
-            <cylinderGeometry args={[0.005, 0.005, 0.14, 8]} />
-            <meshStandardMaterial color="#3b82f6" roughness={0.5} />
-          </mesh>
-          {/* Pen 2 (angled right) */}
-          <mesh position={[0.015, 0.09, -0.015]} rotation={[-0.1, -0.25, 0.2]}>
-            <cylinderGeometry args={[0.005, 0.005, 0.15, 8]} />
-            <meshStandardMaterial color="#ffffff" roughness={0.4} />
-          </mesh>
-          {/* Pen 3 (angled forward) */}
-          <mesh position={[0, 0.09, 0.01]} rotation={[0.3, -0.1, 0.05]}>
-            <cylinderGeometry args={[0.004, 0.004, 0.13, 8]} />
-            <meshStandardMaterial color="#ea580c" roughness={0.5} />
-          </mesh>
+        {/* Pens inside the holder cup */}
+        <group position={[0, 0.05, 0]}>
+          {/* Pen 1 (Blue Pen) */}
+          <group position={[-0.02, 0.05, -0.02]} rotation={[0.2, 0.4, -0.3]}>
+            {/* Body */}
+            <mesh position={[0, 0.05, 0]}>
+              <cylinderGeometry args={[0.005, 0.005, 0.16, 16]} />
+              <meshStandardMaterial color="#3b82f6" roughness={0.4} />
+            </mesh>
+            {/* Cap/Tip */}
+            <mesh position={[0, 0.135, 0]}>
+              <cylinderGeometry args={[0.005, 0.005, 0.03, 16]} />
+              <meshStandardMaterial color="#1e3a8a" roughness={0.3} />
+            </mesh>
+          </group>
+
+          {/* Pen 2 (Silver Premium Pen with pocket clip) */}
+          <group position={[0.02, 0.05, -0.01]} rotation={[-0.1, -0.25, 0.2]}>
+            <mesh position={[0, 0.06, 0]}>
+              <cylinderGeometry args={[0.006, 0.006, 0.18, 16]} />
+              <meshStandardMaterial color="#e2e8f0" metalness={0.8} roughness={0.2} />
+            </mesh>
+            {/* Pocket Clip */}
+            <mesh position={[0.006, 0.12, 0]}>
+              <boxGeometry args={[0.002, 0.04, 0.002]} />
+              <meshStandardMaterial color="#94a3b8" metalness={0.9} roughness={0.1} />
+            </mesh>
+          </group>
+
+          {/* Pen 3 (Orange Pencil with eraser) */}
+          <group position={[0, 0.05, 0.02]} rotation={[0.3, -0.1, 0.1]}>
+            <mesh position={[0, 0.04, 0]}>
+              {/* Hexagonal shape for pencil */}
+              <cylinderGeometry args={[0.004, 0.004, 0.15, 6]} />
+              <meshStandardMaterial color="#ea580c" roughness={0.6} />
+            </mesh>
+            {/* Eraser top */}
+            <mesh position={[0, 0.12, 0]}>
+              <cylinderGeometry args={[0.004, 0.004, 0.015, 16]} />
+              <meshStandardMaterial color="#fca5a5" roughness={0.8} />
+            </mesh>
+            {/* Metal band for eraser */}
+            <mesh position={[0, 0.11, 0]}>
+              <cylinderGeometry args={[0.0042, 0.0042, 0.005, 16]} />
+              <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.3} />
+            </mesh>
+          </group>
         </group>
       </group>
 
-      {/* Desk Lamp */}
-      <group
-        position={[-0.85, -0.175, 0.1]}
-        onClick={(e) => {
-          e.stopPropagation()
-          setIsDarkMode(!isDarkMode)
-        }}
-        onPointerOver={handlePointerOver}
-        onPointerOut={handlePointerOut}
-      >
+      {/* Desk Lamp (Pointing inwards at keyboard like reference image) */}
+      <group position={[-0.75, -0.175, 0.05]}>
         {/* Lamp Base (Flat and solid dark metallic) */}
-        <mesh position={[0, 0.01, 0]}>
+        <mesh
+          position={[0, 0.01, 0]}
+          onClick={(e) => {
+            e.stopPropagation()
+            setIsDarkMode(!isDarkMode)
+          }}
+          onPointerOver={handlePointerOver}
+          onPointerOut={handlePointerOut}
+        >
           <cylinderGeometry args={[0.09, 0.09, 0.02, 32]} />
           <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.3} />
         </mesh>
@@ -1165,48 +1440,56 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           <meshStandardMaterial color="#2d2d2d" metalness={0.9} roughness={0.2} />
         </mesh>
 
-        {/* Arm Assembly (Anglepoise style) */}
-        <group position={[0, 0.03, 0]} rotation={[0.4, -0.4, 0]}>
+        {/* Arm Assembly (Anglepoise style) - Rotated heavily to face the keyboard in the center */}
+        <group position={[0, 0.03, 0]} rotation={[0.2, -1.8, 0]}>
           {/* Lower Arm (Dual springs/bars) */}
           <group>
-            <mesh position={[-0.01, 0.15, 0]}>
-              <cylinderGeometry args={[0.005, 0.005, 0.3, 8]} />
+            <mesh position={[-0.01, 0.2, 0]}>
+              <cylinderGeometry args={[0.005, 0.005, 0.4, 8]} />
               <meshStandardMaterial color="#888888" metalness={0.9} roughness={0.2} />
             </mesh>
-            <mesh position={[0.01, 0.15, 0]}>
-              <cylinderGeometry args={[0.005, 0.005, 0.3, 8]} />
+            <mesh position={[0.01, 0.2, 0]}>
+              <cylinderGeometry args={[0.005, 0.005, 0.4, 8]} />
               <meshStandardMaterial color="#888888" metalness={0.9} roughness={0.2} />
             </mesh>
 
             {/* Middle Joint */}
-            <mesh position={[0, 0.3, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <mesh position={[0, 0.4, 0]} rotation={[Math.PI / 2, 0, 0]}>
               <cylinderGeometry args={[0.015, 0.015, 0.035, 16]} />
               <meshStandardMaterial color="#2d2d2d" metalness={0.9} roughness={0.2} />
             </mesh>
 
             {/* Upper Arm */}
-            <group position={[0, 0.3, 0]} rotation={[-1.0, 0, 0]}>
-              <mesh position={[-0.01, 0.125, 0]}>
-                <cylinderGeometry args={[0.005, 0.005, 0.25, 8]} />
+            <group position={[0, 0.4, 0]} rotation={[-1.2, 0, 0]}>
+              <mesh position={[-0.01, 0.175, 0]}>
+                <cylinderGeometry args={[0.005, 0.005, 0.35, 8]} />
                 <meshStandardMaterial color="#888888" metalness={0.9} roughness={0.2} />
               </mesh>
-              <mesh position={[0.01, 0.125, 0]}>
-                <cylinderGeometry args={[0.005, 0.005, 0.25, 8]} />
+              <mesh position={[0.01, 0.175, 0]}>
+                <cylinderGeometry args={[0.005, 0.005, 0.35, 8]} />
                 <meshStandardMaterial color="#888888" metalness={0.9} roughness={0.2} />
               </mesh>
 
               {/* Head Joint */}
-              <mesh position={[0, 0.25, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <mesh position={[0, 0.35, 0]} rotation={[Math.PI / 2, 0, 0]}>
                 <cylinderGeometry args={[0.012, 0.012, 0.03, 16]} />
                 <meshStandardMaterial color="#2d2d2d" metalness={0.9} roughness={0.2} />
               </mesh>
 
-              {/* Lamp Head (Dome pointing towards keyboard) */}
-              <group position={[0, 0.25, 0]} rotation={[1.3, -0.4, 0.1]}>
+              {/* Lamp Head (Dome pitched down to cast light perfectly on desk/keyboard) */}
+              <group
+                position={[0, 0.35, 0]}
+                rotation={[1.1, 0, 0]}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsDarkMode(!isDarkMode)
+                }}
+                onPointerOver={handlePointerOver}
+                onPointerOut={handlePointerOut}
+              >
                 <mesh position={[0, -0.07, 0]}>
                   {/* Hemisphere Dome */}
                   <sphereGeometry args={[0.07, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
-                  {/* side={2} is THREE.DoubleSide so the inside of the dome is visible */}
                   <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.3} side={2} />
                 </mesh>
                 {/* Glowing Bulb inside */}
@@ -1215,11 +1498,11 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
                   <meshBasicMaterial color={isDarkMode ? "#ffffff" : "#cccccc"} />
                 </mesh>
 
-                {/* Light casting white light directly onto keyboard */}
+                {/* Light casting white light directly onto keyboard (Intensity Reduced) */}
                 <pointLight
                   position={[0, -0.08, 0]}
                   color="#ffffff"
-                  intensity={isDarkMode ? 3.5 : 0.0}
+                  intensity={isDarkMode ? 3.0 : 0.0}
                   distance={5.0}
                   decay={1.5}
                   castShadow
