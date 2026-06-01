@@ -1,16 +1,26 @@
-# React + Vite
+# 3D Interactive Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A stunning, immersive 3D interactive portfolio built with React, WebGL, and React Three Fiber. 
 
-Currently, two official plugins are available:
+🚀 **Live Website:** [https://portfoliouj.vercel.app/](https://portfoliouj.vercel.app/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
+- Fully interactive 3D room environment
+- Detailed desk setup with dynamic lighting, glowing PC fans, and dual monitors
+- Interactive CSS3D screens blending WebGL and HTML elements
+- Levitating headphone stand with neon glowing strips
+- Modern dark/light mode functionality (Toggle via the desk lamp)
+- Smooth camera animations & seamless scrolling
 
-## React Compiler
+## Tech Stack
+- **Frontend Framework:** React, Vite
+- **3D Engine:** Three.js, React Three Fiber (`@react-three/fiber`), `@react-three/drei`
+- **Styling:** Tailwind CSS, Glassmorphism techniques
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Run Locally
+To run this project locally, execute the following commands in your terminal:
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
