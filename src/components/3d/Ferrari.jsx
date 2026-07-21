@@ -51,7 +51,15 @@ export default function Ferrari({ onIntroComplete, ...props }) {
     const posRR_Z = 1.496 * 1.15
     const posFR_Z = -1.154 * 1.15
 
-    // Initial state: Wheels way off-screen to the left and right (X axis), facing the camera
+    // Initial state: Wheels way off-screen to the left and right (X axis)
+    // We set Euler order to ZYX to avoid Gimbal lock. This ensures Z is applied last (as global Z),
+    // allowing the wheels to perfectly roll like a hoop without tumbling!
+    wheelRL.current.rotation.order = "ZYX"
+    wheelFL.current.rotation.order = "ZYX"
+    wheelRR.current.rotation.order = "ZYX"
+    wheelFR.current.rotation.order = "ZYX"
+
+    // We rotate them 90 degrees on Y so they face the camera.
     gsap.set(wheelRL.current.position, { x: -15, z: posRL_Z })
     gsap.set(wheelRL.current.rotation, { x: -Math.PI / 2, y: Math.PI / 2, z: 0 })
 
@@ -69,30 +77,32 @@ export default function Ferrari({ onIntroComplete, ...props }) {
     gsap.set(groupRef.current.scale, { x: 0.01, y: 0.01, z: 0.01 })
 
     // Step 1: Chassis comes in and scales up
-    tl.to(groupRef.current.scale, { x: 1, y: 1, z: 1, duration: 1.5, ease: "power3.out" })
+    tl.to(groupRef.current.scale, { x: 1, y: 1, z: 1, duration: 1.0, ease: "power3.out" })
 
     // Step 2: Wheels attach sequentially (Back Left, Back Right, Front Left, Front Right)
-    const rDur = 1.5 // Roll duration (slower)
-    const sDur = 0.4 // Snap duration (slower)
+    // They roll in like a hoop (animating Z), then snap to their attached position (animating Y)
+    const rDur = 0.8 // Roll duration (faster)
+    const sDur = 0.2 // Snap duration (faster)
+    const spinAmt = Math.PI * 4
     
     // Back Left (RL)
     tl.to(wheelRL.current.position, { x: posRL_X, duration: rDur, ease: "power1.out" }, "+=0.2")
-    tl.to(wheelRL.current.rotation, { x: `-=${Math.PI * 4}`, duration: rDur, ease: "power1.out" }, "<")
+    tl.to(wheelRL.current.rotation, { z: `-=${spinAmt}`, duration: rDur, ease: "power1.out" }, "<")
     tl.to(wheelRL.current.rotation, { y: 0, duration: sDur, ease: "power2.inOut" })
     
     // Back Right (RR)
     tl.to(wheelRR.current.position, { x: posRR_X, duration: rDur, ease: "power1.out" })
-    tl.to(wheelRR.current.rotation, { x: `-=${Math.PI * 4}`, duration: rDur, ease: "power1.out" }, "<")
+    tl.to(wheelRR.current.rotation, { z: `+=${spinAmt}`, duration: rDur, ease: "power1.out" }, "<")
     tl.to(wheelRR.current.rotation, { y: 0, duration: sDur, ease: "power2.inOut" })
     
     // Front Left (FL)
     tl.to(wheelFL.current.position, { x: posFL_X, duration: rDur, ease: "power1.out" })
-    tl.to(wheelFL.current.rotation, { x: `-=${Math.PI * 4}`, duration: rDur, ease: "power1.out" }, "<")
+    tl.to(wheelFL.current.rotation, { z: `-=${spinAmt}`, duration: rDur, ease: "power1.out" }, "<")
     tl.to(wheelFL.current.rotation, { y: 0, duration: sDur, ease: "power2.inOut" })
     
     // Front Right (FR)
     tl.to(wheelFR.current.position, { x: posFR_X, duration: rDur, ease: "power1.out" })
-    tl.to(wheelFR.current.rotation, { x: `-=${Math.PI * 4}`, duration: rDur, ease: "power1.out" }, "<")
+    tl.to(wheelFR.current.rotation, { z: `+=${spinAmt}`, duration: rDur, ease: "power1.out" }, "<")
     tl.to(wheelFR.current.rotation, { y: 0, duration: sDur, ease: "power2.inOut" })
 
     // Step 3: Chassis bump as wheels lock in
@@ -101,29 +111,24 @@ export default function Ferrari({ onIntroComplete, ...props }) {
     // Step 4: Move slowly 360 degrees showing all the smartness
     tl.to(groupRef.current.rotation, { 
       y: `+=${Math.PI * 2}`, 
-      duration: 5, 
+      duration: 3.5, // Sped up from 5s to 3.5s
       ease: "power2.inOut" 
-    }, "+=0.5")
+    }, "+=0.3")
 
-    // Step 5: After 360 spin — headlights power ON like a real car
-    // Ramp up to full glow over 0.5s
-    tl.to(materials.Projector_Glass, { emissiveIntensity: 40, duration: 0.5, ease: "power2.in" }, "+=0.2")
-    tl.to(materials.Taillight_Glass, { emissiveIntensity: 30, duration: 0.5, ease: "power2.in" }, "<")
-    
-    // Hold at full brightness for 3 seconds, then fade to steady glow over 1s
-    tl.to(materials.Projector_Glass, { emissiveIntensity: 6, duration: 1.0, ease: "power2.out" }, "+=3.0")
-    tl.to(materials.Taillight_Glass, { emissiveIntensity: 4, duration: 1.0, ease: "power2.out" }, "<")
+    // Step 5: After 360 spin — headlights power ON once and stay on
+    tl.to(materials.Projector_Glass, { emissiveIntensity: 40, duration: 0.3, ease: "power2.inOut" }, "+=0.2")
+    tl.to(materials.Taillight_Glass, { emissiveIntensity: 30, duration: 0.3, ease: "power2.inOut" }, "<")
 
-    // Step 6: Drive off zoom-past-camera transition
+    // Step 6: Immediately drive off zoom-past-camera transition
     tl.to(groupRef.current.position, {
       z: "+=12",
-      duration: 1.2,
+      duration: 0.9,
       ease: "power2.in"
-    }, "+=0.5")
+    }, "+=0.15") // Shortly after lights turn on
     
     tl.to(materials.Projector_Glass, {
-      emissiveIntensity: 100,
-      duration: 0.6,
+      emissiveIntensity: 100, // Bright flare as it drives towards camera
+      duration: 0.9,
       ease: "power2.in"
     }, "<")
     
@@ -131,7 +136,7 @@ export default function Ferrari({ onIntroComplete, ...props }) {
       x: 1.5,
       y: 1.5,
       z: 1.5,
-      duration: 1.2,
+      duration: 0.9,
       ease: "power2.in"
     }, "<")
 
@@ -209,9 +214,9 @@ export default function Ferrari({ onIntroComplete, ...props }) {
       
       {/* Wheel Rear Right */}
       <group ref={wheelRR} position={[0.824 * 1.1, 0.358, 1.496 * 1.15]} rotation={[-Math.PI / 2, 0, 0]}>
-        <mesh geometry={nodes.wheel.geometry} material={materials.metal_gray} material-color="#111111" position={[0, 0, -0.001]} />
+        <mesh geometry={nodes.wheel.geometry} material={materials.metal_gray} material-color="#cccccc" position={[0, 0, -0.001]} />
         <mesh geometry={nodes.tire.geometry} material={materials.Tires} position={[-0.005, 0, 0]} />
-        <mesh geometry={nodes.rim_rr.geometry} material={materials.metal_gray} material-color="#111111" position={[0.125, 0, -0.001]} />
+        <mesh geometry={nodes.rim_rr.geometry} material={materials.metal_gray} material-color="#cccccc" position={[0.125, 0, -0.001]} />
         <mesh geometry={nodes.centre.geometry} material={materials.Ferrari_Yellow} material-color="#ff0000" position={[0.113, 0, -0.001]} />
         <mesh geometry={nodes.brake.geometry} material={materials.metal_gray} material-color="#ff0000" position={[0.009, 0.001, -0.001]} />
         <mesh geometry={nodes.nuts.geometry} material={materials.Interior_dark} position={[0.103, 0, 0.006]} />
@@ -222,18 +227,18 @@ export default function Ferrari({ onIntroComplete, ...props }) {
         <mesh geometry={nodes.tire_1.geometry} material={materials.Tires} position={[0.006, 0, 0]} />
         <mesh geometry={nodes.brake_1.geometry} material={materials.metal_gray} material-color="#ff0000" position={[-0.018, -0.001, -0.001]} />
         <mesh geometry={nodes.centre_1.geometry} material={materials.Ferrari_Yellow} material-color="#ff0000" position={[-0.113, 0, -0.001]} />
-        <mesh geometry={nodes.wheel_1.geometry} material={materials.metal_gray} material-color="#111111" position={[0, 0, -0.001]} />
-        <mesh geometry={nodes.rim_rl.geometry} material={materials.metal_gray} material-color="#111111" position={[-0.125, 0, -0.001]} />
+        <mesh geometry={nodes.wheel_1.geometry} material={materials.metal_gray} material-color="#cccccc" position={[0, 0, -0.001]} />
+        <mesh geometry={nodes.rim_rl.geometry} material={materials.metal_gray} material-color="#cccccc" position={[-0.125, 0, -0.001]} />
         <mesh geometry={nodes.nuts_1.geometry} material={materials.Interior_dark} position={[-0.103, 0, 0.006]} />
       </group>
       
       {/* Wheel Front Left */}
       <group ref={wheelFL} position={[-0.843 * 1.1, 0.358, -1.155 * 1.15]} rotation={[-Math.PI / 2, 0, 0]}>
-        <mesh geometry={nodes.rim_fl.geometry} material={materials.metal_gray} material-color="#111111" position={[-0.114, 0, -0.001]} />
+        <mesh geometry={nodes.rim_fl.geometry} material={materials.metal_gray} material-color="#cccccc" position={[-0.114, 0, -0.001]} />
         <mesh geometry={nodes.brake_2.geometry} material={materials.metal_gray} material-color="#ff0000" position={[-0.002, -0.001, -0.001]} />
         <mesh geometry={nodes.centre_2.geometry} material={materials.Ferrari_Yellow} material-color="#ff0000" position={[-0.102, 0, -0.001]} />
         <mesh geometry={nodes.nuts_2.geometry} material={materials.Interior_dark} position={[-0.094, 0, 0.006]} />
-        <mesh geometry={nodes.wheel_2.geometry} material={materials.metal_gray} material-color="#111111" position={[0, 0, -0.001]} />
+        <mesh geometry={nodes.wheel_2.geometry} material={materials.metal_gray} material-color="#cccccc" position={[0, 0, -0.001]} />
         <mesh geometry={nodes.tire_2.geometry} material={materials.Tires} position={[0.005, 0, 0]} />
       </group>
       
@@ -241,8 +246,8 @@ export default function Ferrari({ onIntroComplete, ...props }) {
       <group ref={wheelFR} position={[0.829 * 1.1, 0.361, -1.154 * 1.15]} rotation={[-Math.PI / 2, 0, 0]}>
         <mesh geometry={nodes.brake_3.geometry} material={materials.metal_gray} material-color="#ff0000" position={[0.001, 0, -0.001]} />
         <mesh geometry={nodes.centre_3.geometry} material={materials.Ferrari_Yellow} material-color="#ff0000" position={[0.102, 0, -0.001]} />
-        <mesh geometry={nodes.wheel_3.geometry} material={materials.metal_gray} material-color="#111111" position={[0, 0, -0.001]} />
-        <mesh geometry={nodes.rim_fr.geometry} material={materials.metal_gray} material-color="#111111" position={[0.114, 0, -0.001]} />
+        <mesh geometry={nodes.wheel_3.geometry} material={materials.metal_gray} material-color="#cccccc" position={[0, 0, -0.001]} />
+        <mesh geometry={nodes.rim_fr.geometry} material={materials.metal_gray} material-color="#cccccc" position={[0.114, 0, -0.001]} />
         <mesh geometry={nodes.tire_3.geometry} material={materials.Tires} position={[-0.005, 0, 0]} />
         <mesh geometry={nodes.nuts_3.geometry} material={materials.Interior_dark} position={[0.094, 0, 0.006]} />
       </group>

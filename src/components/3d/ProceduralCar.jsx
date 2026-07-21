@@ -18,11 +18,8 @@ export default function ProceduralCar({ onIntroComplete }) {
       }
     })
 
-    // Wheels start off-screen
-    gsap.set(wheelFL.current.position, { x: -15 })
-    gsap.set(wheelBL.current.position, { x: -15 })
-    gsap.set(wheelFR.current.position, { x: 15 })
-    gsap.set(wheelBR.current.position, { x: 15 })
+    // Wheels start behind the car (off-screen right)
+    gsap.set([wheelFL.current.position, wheelFR.current.position, wheelBL.current.position, wheelBR.current.position], { x: 15 })
 
     // Target positions for the wheels to fit the Porsche silhouette
     const posFL = { x: -1.3, y: 0.35, z: -1.0 }
@@ -35,14 +32,13 @@ export default function ProceduralCar({ onIntroComplete }) {
     // Back Left (Z: -1.0, X: 1.4)
     // Back Right (Z: 1.0, X: 1.4)
 
-    const rollDuration = 1.8
-    tl.to(wheelFL.current.position, { z: -wZ, duration: rollDuration, ease: "power3.out" }, 0)
-    tl.to(wheelBL.current.position, { z: -wZ, duration: rollDuration, ease: "power3.out" }, 0)
-    tl.to(wheelFR.current.position, { z: wZ, duration: rollDuration, ease: "power3.out" }, 0)
-    tl.to(wheelBR.current.position, { z: wZ, duration: rollDuration, ease: "power3.out" }, 0)
+    const rollDuration = 1.5
+    // Drive wheels in from behind the car (X axis)
+    tl.to([wheelFL.current.position, wheelFR.current.position], { x: posFL.x, duration: rollDuration, ease: "power3.out" }, 0)
+    tl.to([wheelBL.current.position, wheelBR.current.position], { x: posBL.x, duration: rollDuration, ease: "power3.out" }, 0)
 
-    // Spin wheels
-    tl.to([wheelFL.current.rotation, wheelBL.current.rotation, wheelFR.current.rotation, wheelBR.current.rotation], { z: `-=${Math.PI * 6}`, duration: rollDuration, ease: "power3.out" }, 0)
+    // Roll wheels (Z axis) to match the driving motion
+    tl.to([wheelFL.current.rotation, wheelBL.current.rotation, wheelFR.current.rotation, wheelBR.current.rotation], { z: `+=${Math.PI * 6}`, duration: rollDuration, ease: "power3.out" }, 0)
 
     // Chassis bump
     tl.to(groupRef.current.position, { y: "+=0.2", duration: 0.2, yoyo: true, repeat: 1, ease: "power1.inOut" }, ">")
@@ -65,6 +61,9 @@ export default function ProceduralCar({ onIntroComplete }) {
       })
     })
 
+    return () => {
+      tl.kill()
+    }
   }, [onIntroComplete])
 
   // Create Porsche Silhouette Shape

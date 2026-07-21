@@ -17,7 +17,20 @@ function App() {
   const [activeProject, setActiveProject] = useState(0) // 0: Torus Knot, 1: Ferrari, 2: Space Planet
   const [isDarkMode, setIsDarkMode] = useState(true) // Default to cozy dark night mode
 
-  // Remove wheel listener to allow normal scrolling
+  // Lock scrolling while the intro animation is playing
+  useEffect(() => {
+    if (!introComplete) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'auto'
+    }
+    
+    // Cleanup to ensure scroll is restored if component unmounts
+    return () => {
+      document.body.style.overflow = 'auto'
+    }
+  }, [introComplete])
+
   // We will rely on the left/right buttons to change sectors in the 3D scene.
 
   return (
@@ -53,30 +66,7 @@ function App() {
         <AnimatePresence>
           {introComplete && (
             <>
-              {/* Top Status Bar */}
-              <motion.div 
-                initial={{ y: -50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -50, opacity: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className={`absolute top-6 left-6 right-6 flex items-center justify-between pointer-events-none z-10 font-sans text-xs font-semibold tracking-wider transition-all duration-500 px-6 py-3.5 rounded-xl ${
-                  isDarkMode 
-                    ? 'text-indigo-200 bg-[rgba(8,10,16,0.65)] backdrop-blur-md border border-[rgba(255,255,255,0.08)] shadow-[0_8px_30px_rgba(0,0,0,0.25)]' 
-                    : 'text-slate-800 bg-white/70 backdrop-blur-md border border-slate-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.04)]'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className={`w-2 h-2 rounded-full animate-pulse ${isDarkMode ? 'bg-indigo-400' : 'bg-emerald-500'}`}></span>
-                  <span>SYSTEM ACTIVE</span>
-                </div>
-                <div className="hidden sm:block">
-                  SECTOR: <span className={`font-extrabold ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>{sector.toUpperCase()}</span>
-                </div>
-                <div className={`font-mono ${isDarkMode ? 'text-indigo-300/60' : 'text-slate-500'}`}>
-                  UNNATI // PORTFOLIO
-                </div>
-              </motion.div>
-  
+
               {/* Left Navigation (Development Journey) */}
               {sector === 'center' && (
                 <motion.button
@@ -87,7 +77,7 @@ function App() {
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 120, damping: 18 }}
                   onClick={() => setSector('left')}
-                  className={`absolute left-8 top-1/2 -translate-y-1/2 z-10 flex flex-col items-center gap-3 backdrop-blur-md transition-all duration-300 cursor-pointer group px-4 py-8 rounded-2xl pointer-events-auto ${
+                  className={`absolute left-8 top-[35%] -translate-y-1/2 z-10 flex flex-col items-center gap-3 backdrop-blur-md transition-all duration-300 cursor-pointer group px-4 py-8 rounded-2xl pointer-events-auto ${
                     isDarkMode 
                       ? 'bg-[rgba(8,10,16,0.7)] text-indigo-200 hover:text-white border border-[rgba(255,255,255,0.08)] hover:border-indigo-400 shadow-[0_8px_30px_rgba(0,0,0,0.2)]' 
                       : 'bg-white/70 text-slate-800 hover:text-indigo-600 border border-slate-200/60 hover:border-indigo-300 shadow-[0_8px_30px_rgba(0,0,0,0.04)]'
@@ -110,7 +100,7 @@ function App() {
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 120, damping: 18 }}
                   onClick={() => setSector('right')}
-                  className={`absolute right-8 top-1/2 -translate-y-1/2 z-10 flex flex-col items-center gap-3 backdrop-blur-md transition-all duration-300 cursor-pointer group px-4 py-8 rounded-2xl pointer-events-auto ${
+                  className={`absolute right-8 top-[35%] -translate-y-1/2 z-10 flex flex-col items-center gap-3 backdrop-blur-md transition-all duration-300 cursor-pointer group px-4 py-8 rounded-2xl pointer-events-auto ${
                     isDarkMode 
                       ? 'bg-[rgba(8,10,16,0.7)] text-indigo-200 hover:text-white border border-[rgba(255,255,255,0.08)] hover:border-indigo-400 shadow-[0_8px_30px_rgba(0,0,0,0.2)]' 
                       : 'bg-white/70 text-slate-800 hover:text-indigo-600 border border-slate-200/60 hover:border-indigo-300 shadow-[0_8px_30px_rgba(0,0,0,0.04)]'
