@@ -1,6 +1,6 @@
-import React, { useRef, useState, useMemo, useLayoutEffect } from 'react'
+import React, { useRef, useState, useMemo, useLayoutEffect, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Html, useGLTF, Text } from '@react-three/drei'
+import { Html, useGLTF, Text, RoundedBox } from '@react-three/drei'
 import * as THREE from 'three'
 import gsap from 'gsap'
 
@@ -21,6 +21,45 @@ function TwinklingStar({ position, size, delay }) {
   )
 }
 
+function TypewriterText() {
+  const words = ["a Full Stack Developer.", "an AI/ML Enthusiast.", "a Python Developer."];
+  const [index, setIndex] = useState(0);
+  const [subIndex, setSubIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [blink, setBlink] = useState(true);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setBlink((prev) => !prev), 500);
+    return () => clearTimeout(timeout);
+  }, [blink]);
+
+  useEffect(() => {
+    if (subIndex === words[index].length + 1 && !isDeleting) {
+      setTimeout(() => setIsDeleting(true), 1500);
+      return;
+    }
+
+    if (subIndex === 0 && isDeleting) {
+      setIsDeleting(false);
+      setIndex((prev) => (prev + 1) % words.length);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      setSubIndex((prev) => prev + (isDeleting ? -1 : 1));
+    }, isDeleting ? 40 : 100);
+
+    return () => clearTimeout(timeout);
+  }, [subIndex, index, isDeleting, words]);
+
+  return (
+    <span className="inline-block min-w-[200px]">
+      <span className="text-indigo-400 font-bold">{words[index].substring(0, subIndex)}</span>
+      <span className={`${blink ? 'opacity-100' : 'opacity-0'} transition-opacity text-white`}>|</span>
+    </span>
+  );
+}
+
 function FallingLeaf({ startDelay }) {
   const meshRef = useRef()
   
@@ -35,6 +74,16 @@ function FallingLeaf({ startDelay }) {
   const [speed] = useState(() => 0.2 + Math.random() * 0.3)
   const [wobbleSpeed] = useState(() => 1.0 + Math.random() * 2.0)
   const [wobbleAmount] = useState(() => 0.1 + Math.random() * 0.2)
+  const [spinSpeedX] = useState(() => 1.5 + Math.random() * 2.0)
+  const [spinSpeedY] = useState(() => 1.0 + Math.random() * 2.0)
+  
+  // Randomize visuals to break monotony
+  const [leafScale] = useState(() => 0.5 + Math.random() * 1.0)
+  const [leafColor] = useState(() => {
+    // Mix of light green, dark green, yellow, and subtle orange for variety
+    const colors = ["#4ade80", "#22c55e", "#15803d", "#facc15", "#fb923c"]
+    return colors[Math.floor(Math.random() * colors.length)]
+  })
   
   useFrame(({ clock }) => {
     if (meshRef.current) {
@@ -47,9 +96,9 @@ function FallingLeaf({ startDelay }) {
       // Drift sideways
       meshRef.current.position.x = startPos[0] + Math.sin(time * wobbleSpeed) * wobbleAmount
       
-      // Spin and flutter organically
-      meshRef.current.rotation.x = time * 2.5
-      meshRef.current.rotation.y = time * 1.8
+      // Spin and flutter organically with unique speeds
+      meshRef.current.rotation.x = time * spinSpeedX
+      meshRef.current.rotation.y = time * spinSpeedY
       
       // Loop back to top once it falls out of frame
       if (meshRef.current.position.y < -0.6) {
@@ -60,10 +109,10 @@ function FallingLeaf({ startDelay }) {
   })
 
   return (
-    <mesh ref={meshRef} position={startPos} scale={[1, 1.5, 0.1]}>
+    <mesh ref={meshRef} position={startPos} scale={[leafScale, leafScale * 1.5, leafScale * 0.1]}>
       {/* A low-poly sphere squashed on the Z axis creates a perfect 3D leaf/diamond shape */}
       <sphereGeometry args={[0.02, 4, 4]} />
-      <meshStandardMaterial color="#4ade80" roughness={0.6} side={THREE.DoubleSide} />
+      <meshStandardMaterial color={leafColor} roughness={0.6} side={THREE.DoubleSide} />
     </mesh>
   )
 }
@@ -201,11 +250,11 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
       levitatingHeadphoneRef.current.rotation.y = state.clock.getElapsedTime() * 0.3
     }
 
-    // 2. Smoothly rotate the chair based on mouse coordinate
-    if (chairRef.current) {
-      const targetRot = 0.4 + state.pointer.x * 0.4
-      chairRef.current.rotation.y = THREE.MathUtils.lerp(chairRef.current.rotation.y, targetRot, 0.05)
-    }
+    // 2. Smoothly rotate the chair based on mouse coordinate (disabled for 360 manual drag control)
+    // if (chairRef.current) {
+    //   const targetRot = 0.4 + state.pointer.x * 0.4
+    //   chairRef.current.rotation.y = THREE.MathUtils.lerp(chairRef.current.rotation.y, targetRot, 0.05)
+    // }
 
     // 3. Camera transition logic based on selected sector (adjusted for cozy desk view, reduced camera motion)
     const basePos = new THREE.Vector3()
@@ -295,10 +344,10 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
       </mesh>
 
       {/* Wall Calendar (JULY 2026) */}
-      <group position={[0.4, 1.15, -1.76]} scale={0.75}>
+      <group position={[0.2, 1.35, -1.76]} scale={0.75}>
         {/* Calendar Frame */}
         <mesh position={[0, 0, -0.01]}>
-          <boxGeometry args={[0.9, 0.88, 0.02]} />
+          <boxGeometry args={[1.0, 0.75, 0.02]} />
           <meshStandardMaterial color={isDarkMode ? "#0f172a" : "#f1f5f9"} roughness={0.9} />
         </mesh>
         
@@ -310,8 +359,8 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           position={[0, 0, 0.005]}
         >
           <div style={{
-            width: '420px',
-            height: '420px',
+            width: '480px',
+            height: '360px',
             backgroundColor: isDarkMode ? 'rgba(21, 25, 34, 0.95)' : 'rgba(255, 255, 255, 0.95)',
             border: `2px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`,
             borderRadius: '8px',
@@ -344,18 +393,18 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
                 
                 // Content for specific days
                 const task = 
-                  date === 10 ? { text: 'UK Visit Plan', done: true } :
-                  date === 19 ? { text: 'Site Launch', done: true } :
-                  date === 20 ? { text: 'Tea Launch', done: true } :
-                  date === 22 ? { text: 'Site Launch', done: true } :
-                  date === 27 ? { text: 'Tea Break', done: true } : null;
+                  date === 10 ? { text: 'API Design', done: true } :
+                  date === 19 ? { text: 'Deploy DB', done: true } :
+                  date === 20 ? { text: 'Code Review', done: true } :
+                  date === 22 ? { text: 'Fix UI Bugs', done: true } :
+                  date === 27 ? { text: 'Client Demo', done: false } : null;
 
                 return (
                   <div key={index} style={{
                     border: `1px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`,
                     position: 'relative',
-                    padding: '4px',
-                    fontSize: '12px',
+                    padding: '2px 4px',
+                    fontSize: '11px',
                     backgroundColor: task 
                       ? (isDarkMode ? 'rgba(51, 65, 85, 0.4)' : 'rgba(241, 245, 249, 0.8)') 
                       : 'transparent',
@@ -366,8 +415,8 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
                     <span>{date}</span>
                     {task && (
                       <div style={{ marginTop: 'auto', textAlign: 'center' }}>
-                        <div style={{ fontSize: '16px', color: isDarkMode ? '#f8fafc' : '#3b82f6', marginBottom: '-2px' }}>☑</div>
-                        <div style={{ fontSize: '7px', color: isDarkMode ? '#cbd5e1' : '#475569', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div style={{ fontSize: '14px', color: isDarkMode ? '#f8fafc' : '#3b82f6', marginBottom: '-1px' }}>{task.done ? '☑' : '☐'}</div>
+                        <div style={{ fontSize: '6.5px', color: isDarkMode ? '#cbd5e1' : '#475569', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {task.text}
                         </div>
                       </div>
@@ -379,10 +428,10 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
 
             {/* Bottom Footer Tasks */}
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', marginTop: '10px', color: isDarkMode ? '#cbd5e1' : '#475569', paddingTop: '8px', borderTop: `1px solid ${isDarkMode ? '#334155' : '#e2e8f0'}` }}>
-              <div>☑ Confirm UK travel</div>
-              <div>☐ Finalise UI Assets</div>
-              <div>☑ Book meeting</div>
-              <div>☑ Team UK Call</div>
+              <div>☑ Setup Database</div>
+              <div>☐ Write Unit Tests</div>
+              <div>☑ Fix CORS issues</div>
+              <div>☑ Daily Standup</div>
             </div>
           </div>
         </Html>
@@ -567,10 +616,10 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         <meshStandardMaterial color="#1e293b" roughness={0.8} />
       </mesh>
 
-      {/* Floor (Concrete / Polished Stone) */}
+      {/* Floor (Light Brown / Natural Wood Texture Tone) */}
       <mesh position={[0, -0.83, 1.0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[8, 6]} />
-        <meshStandardMaterial color="#888888" roughness={0.8} metalness={0.1} />
+        <meshStandardMaterial color="#d0b490" roughness={0.9} metalness={0.05} />
       </mesh>
 
       {/* Ceiling (Slate-900 Dark Ceiling) */}
@@ -660,8 +709,8 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
       {/* ========================================================================= */}
 
       <group
-        position={[0, 0.36, -0.6]}
-        scale={0.68}
+        position={[0, 0.45, -0.6]}
+        scale={0.80}
         onClick={(e) => handleWallClick('center', e)}
         onPointerOver={(sector !== 'center') ? handlePointerOver : undefined}
         onPointerOut={handlePointerOut}
@@ -727,7 +776,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           <meshStandardMaterial color="#64748b" metalness={0.9} roughness={0.2} />
         </mesh>
         {/* Top Joint connecting to monitor */}
-        <mesh position={[0, -0.2, 0]} rotation={[Math.PI/2, 0, 0]}>
+        <mesh position={[0, -0.2, -0.04]} rotation={[Math.PI/2, 0, 0]}>
           <cylinderGeometry args={[0.04, 0.04, 0.1]} />
           <meshStandardMaterial color="#475569" metalness={0.8} roughness={0.4} />
         </mesh>
@@ -768,7 +817,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           <meshStandardMaterial color="#020305" roughness={0.08} metalness={0.9} />
         </mesh>
 
-        {/* Center Screen HTML Landing Page Content (Raised slightly) */}
+        {/* Center Screen HTML Landing Page Content (Hero Section) */}
         <Html
           transform
           occlude="blending"
@@ -778,8 +827,8 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           style={{
             width: '1440px',
             height: '470px',
-            background: '#ffffff',
-            color: '#1e293b',
+            background: '#0f172a',
+            color: '#f8fafc',
             fontFamily: '"Outfit", "Inter", sans-serif',
             boxSizing: 'border-box',
             borderRadius: '8px',
@@ -789,107 +838,45 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
             userSelect: 'none'
           }}
         >
-          <div className="flex flex-col h-full w-full bg-white select-none">
-            {/* Top Purple/Indigo Section */}
-            <div className="relative bg-gradient-to-br from-[#7c3aed] via-[#6366f1] to-[#4f46e5] w-full h-[62%] px-8 py-6 text-white flex flex-row items-center justify-between overflow-hidden">
-              {/* Background light blobs */}
-              <div className="absolute top-[-30px] left-[-30px] w-[140px] h-[140px] bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-              <div className="absolute bottom-[-40px] right-[30px] w-[160px] h-[160px] bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-35 animate-pulse"></div>
-
-              {/* Left Column info */}
-              <div className="flex flex-col z-10 max-w-[50%]">
-                {/* Logo & Name */}
-                <div className="flex items-center gap-2 mb-2.5">
-                  <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center shadow-md">
-                    <span className="text-[#6366f1] font-black text-sm">P</span>
-                  </div>
-                  <span className="text-white font-extrabold text-sm tracking-tight">Slice Library</span>
-                </div>
-                {/* Main Headline */}
-                <h1 className="text-white text-xl font-extrabold leading-tight mb-2 tracking-tight">
-                  Build components & website sections in minutes.
-                </h1>
-                {/* Small Subtitle */}
-                <p className="text-indigo-100 text-[10px] leading-relaxed mb-3 opacity-90">
-                  A gorgeous creative portfolio and library of interactive 3D components designed with React and Tailwind.
-                </p>
-                {/* Button */}
-                <div>
-                  <button className="bg-white text-indigo-700 font-bold text-[9px] py-1.5 px-4 rounded-full shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer">
-                    Get Started
-                  </button>
-                </div>
+          <div className="flex flex-row h-full w-full bg-[#0f172a] select-none text-white">
+            {/* Left Column: Hero Content */}
+            <div className="w-[65%] h-full flex flex-col justify-center px-24 relative overflow-hidden border-r border-slate-800">
+              {/* Background ambient glow */}
+              <div className="absolute bottom-[-100px] left-[-50px] w-[400px] h-[400px] bg-indigo-600 rounded-full mix-blend-screen filter blur-[120px] opacity-20 animate-pulse"></div>
+              
+              <div className="text-indigo-400 font-mono text-3xl mb-6 tracking-widest uppercase text-opacity-90 z-10">
+                <span className="inline-block mr-3 text-indigo-500/50">{">"}</span>
+                Hello World, I am
               </div>
-
-              {/* Right Column mockup */}
-              <div className="w-[44%] z-10 pr-2">
-                <div className="relative w-full h-[155px] bg-[#0f172a] rounded-lg border border-indigo-400/40 shadow-2xl flex flex-col overflow-hidden">
-                  {/* Mockup Header */}
-                  <div className="bg-[#1e293b] px-2 py-1 flex items-center gap-1 border-b border-indigo-950/40">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                    <span className="text-[6.5px] text-indigo-200/50 font-mono ml-1.5">unnati.dev/slices</span>
-                  </div>
-                  {/* Inside Mockup */}
-                  <div className="p-2 grid grid-cols-3 gap-1.5 flex-1 bg-[#0b0f19] overflow-hidden">
-                    {/* Mockup Sidebar */}
-                    <div className="col-span-1 bg-[#161e2e] rounded p-1 flex flex-col gap-1">
-                      <div className="h-1.5 w-full bg-indigo-500/30 rounded"></div>
-                      <div className="h-1 w-4/5 bg-gray-600/20 rounded"></div>
-                      <div className="h-1 w-3/5 bg-gray-600/20 rounded"></div>
-                      <div className="mt-auto h-1.5 w-full bg-indigo-500/20 rounded"></div>
-                    </div>
-                    {/* Mockup Cards */}
-                    <div className="col-span-2 grid grid-cols-2 gap-1">
-                      <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded p-1 flex flex-col justify-between shadow-sm">
-                        <div className="w-3 h-3 rounded-full bg-white/20"></div>
-                        <div className="h-1.5 w-3/4 bg-white/30 rounded mt-2"></div>
-                      </div>
-                      <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded p-1 flex flex-col justify-between shadow-sm">
-                        <div className="w-3 h-3 rounded-full bg-white/20"></div>
-                        <div className="h-1.5 w-3/4 bg-white/30 rounded mt-2"></div>
-                      </div>
-                      <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded p-1 flex flex-col justify-between shadow-sm col-span-2">
-                        <div className="h-1.5 w-1/2 bg-white/30 rounded"></div>
-                        <div className="h-1 w-3/4 bg-white/20 rounded mt-0.5"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              
+              <h1 className="text-[5.5rem] font-black text-white mb-8 tracking-tighter leading-none z-10 drop-shadow-xl">
+                Unnati Jadon
+              </h1>
+              
+              {/* Typewriter text wrapper */}
+              <div className="text-5xl text-slate-200 font-bold h-[70px] mb-12 flex items-center z-10">
+                I'm <span className="ml-4"><TypewriterText /></span>
+              </div>
+              
+              <div className="flex gap-6 z-10 mt-4">
+                <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-5 px-10 rounded-xl shadow-[0_0_30px_rgba(79,70,229,0.4)] transition-all hover:scale-105 active:scale-95 cursor-pointer text-lg tracking-wider uppercase">
+                  View My Projects
+                </button>
+                <button className="bg-slate-800/50 backdrop-blur-sm hover:bg-slate-800 text-white font-bold py-5 px-10 rounded-xl border border-slate-600 hover:border-slate-400 transition-all cursor-pointer text-lg tracking-wider uppercase">
+                  Contact Me
+                </button>
               </div>
             </div>
 
-            {/* Bottom White Section */}
-            <div className="bg-white w-full h-[38%] px-8 py-3.5 border-t border-gray-100 flex flex-row items-center justify-between">
-              {/* Column 1 */}
-              <div className="w-[47%] flex flex-col">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shadow-inner">
-                    <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                    </svg>
-                  </div>
-                  <span className="text-[11px] font-black text-slate-800 tracking-tight">Design Faster</span>
-                </div>
-                <p className="text-[9px] text-slate-500 leading-normal">
-                  Leverage bespoke UI design systems, gorgeous palettes, and smooth spring-based animations to create premium layouts.
-                </p>
-              </div>
-
-              {/* Column 2 */}
-              <div className="w-[47%] flex flex-col">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-inner">
-                    <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <span className="text-[11px] font-black text-slate-800 tracking-tight">Build Smarter</span>
-                </div>
-                <p className="text-[9px] text-slate-500 leading-normal">
-                  Clean modular structures and high-performance WebGL renders optimized for loading speed and accessibility.
-                </p>
+            {/* Right Column: Photo / Profile */}
+            <div className="w-[35%] h-full flex flex-col relative overflow-hidden bg-slate-900">
+              {/* The Photo */}
+              <div className="w-full h-full absolute inset-0 group cursor-pointer bg-slate-900 overflow-hidden">
+                <img 
+                  src="/profile.png" 
+                  alt="Unnati Profile" 
+                  className="w-full h-full object-cover object-[95%_5%] scale-110 transition-transform duration-700 group-hover:scale-125 group-hover:translate-x-2" 
+                />
               </div>
             </div>
           </div>
@@ -906,7 +893,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
 
       <group
         ref={chairRef}
-        position={[-0.35, -0.463, 0.90]}
+        position={[-0.35, -0.35, 0.65]}
         rotation={[0, 0.4, 0]}
         scale={0.78}
         onPointerDown={(e) => {
@@ -985,21 +972,19 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         {/* PREMIUM ERGONOMIC CHAIR (Matching Reference Image) */}
         
         {/* Seat Cushion (Dark Grey Mesh/Fabric on Black Frame) */}
-        <group position={[0, -0.05, 0.1]}>
+        <group position={[0, -0.05, 0.02]}>
           {/* Black Plastic Base under seat */}
-          <mesh position={[0, -0.02, 0]}>
-            <boxGeometry args={[0.38, 0.04, 0.42]} />
+          <RoundedBox position={[0, -0.02, 0]} args={[0.48, 0.04, 0.50]} radius={0.015} smoothness={4}>
             <meshStandardMaterial color="#0f0f11" roughness={0.8} />
-          </mesh>
+          </RoundedBox>
           {/* Dark Grey Seat Mesh/Cushion */}
-          <mesh position={[0, 0.015, 0]}>
-            <boxGeometry args={[0.39, 0.03, 0.43]} />
+          <RoundedBox position={[0, 0.015, 0]} args={[0.49, 0.04, 0.51]} radius={0.015} smoothness={4}>
             <meshStandardMaterial color="#2d2d30" roughness={0.9} />
-          </mesh>
+          </RoundedBox>
         </group>
 
         {/* Structural Spine (Central Black Plastic Pillar) */}
-        <group position={[0, 0.15, -0.15]} rotation={[0.1, 0, 0]}>
+        <group position={[0, 0.15, -0.15]} rotation={[0.2, 0, 0]}>
           <mesh position={[0, -0.05, 0]}>
             <boxGeometry args={[0.08, 0.25, 0.05]} />
             <meshStandardMaterial color="#111111" roughness={0.8} />
@@ -1007,34 +992,42 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         </group>
 
         {/* Backrest (Black Frame, Dark Mesh, Silver Metallic Accents) */}
-        <group position={[0, 0.35, -0.13]} rotation={[0.1, 0, 0]}>
-          {/* Black Outer Shell Frame */}
-          <mesh position={[0, 0, -0.02]}>
-            <boxGeometry args={[0.42, 0.5, 0.04]} />
-            <meshStandardMaterial color="#111111" roughness={0.8} />
-          </mesh>
-          
-          {/* Inner Dark Grey Mesh Surface */}
-          <mesh position={[0, 0, 0.005]}>
-            <boxGeometry args={[0.38, 0.46, 0.02]} />
-            <meshStandardMaterial color="#222224" roughness={0.8} />
-          </mesh>
+        <group position={[0, 0.35, -0.13]} rotation={[0.15, 0, 0]}>
+          {/* Ergonomic Shaped Lower Back (Lumbar) */}
+          <group position={[0, -0.12, 0.02]} rotation={[0.1, 0, 0]}>
+            <RoundedBox position={[0, 0, -0.02]} args={[0.42, 0.28, 0.04]} radius={0.03} smoothness={4}>
+              <meshStandardMaterial color="#111111" roughness={0.8} />
+            </RoundedBox>
+            <RoundedBox position={[0, 0, 0.005]} args={[0.38, 0.25, 0.02]} radius={0.02} smoothness={4}>
+              <meshStandardMaterial color="#222224" roughness={0.8} />
+            </RoundedBox>
+          </group>
+
+          {/* Ergonomic Shaped Upper Back */}
+          <group position={[0, 0.15, -0.01]} rotation={[-0.05, 0, 0]}>
+            <RoundedBox position={[0, 0, -0.02]} args={[0.42, 0.3, 0.04]} radius={0.03} smoothness={4}>
+              <meshStandardMaterial color="#111111" roughness={0.8} />
+            </RoundedBox>
+            <RoundedBox position={[0, 0, 0.005]} args={[0.38, 0.27, 0.02]} radius={0.02} smoothness={4}>
+              <meshStandardMaterial color="#222224" roughness={0.8} />
+            </RoundedBox>
+          </group>
 
           {/* Silver Metallic V-Shape Support Structure on the back */}
-          {/* Top horizontal black bar */}
+          {/* Top horizontal silver bar */}
           <mesh position={[0, 0.23, -0.025]}>
-            <boxGeometry args={[0.38, 0.02, 0.02]} />
-            <meshStandardMaterial color="#111111" metalness={0.2} roughness={0.8} />
+            <boxGeometry args={[0.38, 0.03, 0.02]} />
+            <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.3} />
           </mesh>
-          {/* Left Black diagonal */}
+          {/* Left Silver diagonal */}
           <mesh position={[-0.15, -0.05, -0.025]} rotation={[0, 0, -0.5]}>
-            <boxGeometry args={[0.025, 0.5, 0.02]} />
-            <meshStandardMaterial color="#111111" metalness={0.2} roughness={0.8} />
+            <boxGeometry args={[0.03, 0.5, 0.02]} />
+            <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.3} />
           </mesh>
-          {/* Right Black diagonal */}
+          {/* Right Silver diagonal */}
           <mesh position={[0.15, -0.05, -0.025]} rotation={[0, 0, 0.5]}>
-            <boxGeometry args={[0.025, 0.5, 0.02]} />
-            <meshStandardMaterial color="#111111" metalness={0.2} roughness={0.8} />
+            <boxGeometry args={[0.03, 0.5, 0.02]} />
+            <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.3} />
           </mesh>
           
           {/* Lower ribbed lumbar support (Black plastic) */}
@@ -1045,7 +1038,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         </group>
 
         {/* Headrest (Mesh Panel with T-bracket) */}
-        <group position={[0, 0.68, -0.17]} rotation={[0.1, 0, 0]}>
+        <group position={[0, 0.68, -0.17]} rotation={[0.2, 0, 0]}>
           {/* Central thick black pillar going up to headrest */}
           <mesh position={[0, -0.1, -0.03]}>
             <boxGeometry args={[0.05, 0.15, 0.04]} />
@@ -1080,31 +1073,29 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
 
         {/* T-Style Armrests (Flat black pads on single posts) */}
         {/* Left Armrest */}
-        <group position={[-0.24, 0.15, 0.05]}>
+        <group position={[-0.25, 0.15, -0.05]}>
           {/* Vertical Post */}
           <mesh position={[0, -0.12, 0]}>
             <boxGeometry args={[0.03, 0.24, 0.04]} />
             <meshStandardMaterial color="#111111" roughness={0.8} />
           </mesh>
           {/* Flat Armrest Pad */}
-          <mesh position={[0, 0, 0]}>
-            <boxGeometry args={[0.06, 0.02, 0.25]} />
+          <RoundedBox position={[0, 0, 0.05]} args={[0.08, 0.03, 0.32]} radius={0.02} smoothness={4}>
             <meshStandardMaterial color="#050505" roughness={0.9} />
-          </mesh>
+          </RoundedBox>
         </group>
         
         {/* Right Armrest */}
-        <group position={[0.24, 0.15, 0.05]}>
+        <group position={[0.25, 0.15, -0.05]}>
           {/* Vertical Post */}
           <mesh position={[0, -0.12, 0]}>
             <boxGeometry args={[0.03, 0.24, 0.04]} />
             <meshStandardMaterial color="#111111" roughness={0.8} />
           </mesh>
           {/* Flat Armrest Pad */}
-          <mesh position={[0, 0, 0]}>
-            <boxGeometry args={[0.06, 0.02, 0.25]} />
+          <RoundedBox position={[0, 0, 0.05]} args={[0.08, 0.03, 0.32]} radius={0.02} smoothness={4}>
             <meshStandardMaterial color="#050505" roughness={0.9} />
-          </mesh>
+          </RoundedBox>
         </group>
       </group>
 

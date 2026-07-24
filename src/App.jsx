@@ -77,11 +77,7 @@ function App() {
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 120, damping: 18 }}
                   onClick={() => setSector('left')}
-                  className={`absolute left-8 top-[35%] -translate-y-1/2 z-10 flex flex-col items-center gap-3 backdrop-blur-md transition-all duration-300 cursor-pointer group px-4 py-8 rounded-2xl pointer-events-auto ${
-                    isDarkMode 
-                      ? 'bg-[rgba(8,10,16,0.7)] text-indigo-200 hover:text-white border border-[rgba(255,255,255,0.08)] hover:border-indigo-400 shadow-[0_8px_30px_rgba(0,0,0,0.2)]' 
-                      : 'bg-white/70 text-slate-800 hover:text-indigo-600 border border-slate-200/60 hover:border-indigo-300 shadow-[0_8px_30px_rgba(0,0,0,0.04)]'
-                  }`}
+                  className={`absolute left-8 top-[35%] -translate-y-1/2 z-10 flex flex-col items-center gap-3 transition-all duration-300 cursor-pointer group px-4 py-8 rounded-2xl pointer-events-auto bg-white text-slate-900 hover:text-indigo-600 border border-slate-200 shadow-xl`}
                 >
                   <span className="font-sans text-xs tracking-widest uppercase [writing-mode:vertical-lr] rotate-180 mb-2 font-extrabold">DEVELOPMENT JOURNEY</span>
                   <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,11 +96,7 @@ function App() {
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 120, damping: 18 }}
                   onClick={() => setSector('right')}
-                  className={`absolute right-8 top-[35%] -translate-y-1/2 z-10 flex flex-col items-center gap-3 backdrop-blur-md transition-all duration-300 cursor-pointer group px-4 py-8 rounded-2xl pointer-events-auto ${
-                    isDarkMode 
-                      ? 'bg-[rgba(8,10,16,0.7)] text-indigo-200 hover:text-white border border-[rgba(255,255,255,0.08)] hover:border-indigo-400 shadow-[0_8px_30px_rgba(0,0,0,0.2)]' 
-                      : 'bg-white/70 text-slate-800 hover:text-indigo-600 border border-slate-200/60 hover:border-indigo-300 shadow-[0_8px_30px_rgba(0,0,0,0.04)]'
-                  }`}
+                  className={`absolute right-8 top-[35%] -translate-y-1/2 z-10 flex flex-col items-center gap-3 transition-all duration-300 cursor-pointer group px-4 py-8 rounded-2xl pointer-events-auto bg-white text-slate-900 hover:text-indigo-600 border border-slate-200 shadow-xl`}
                 >
                   <span className="font-sans text-xs tracking-widest uppercase [writing-mode:vertical-lr] mb-2 font-extrabold">DSA JOURNEY</span>
                   <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
