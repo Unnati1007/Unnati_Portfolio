@@ -262,11 +262,13 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
 
     if (sector === 'left') {
       // Look at the Left Wall screen (About/Skills)
-      basePos.set(-0.7, 0.25, 1.45)
+      // Moved camera X to -1.7 to perfectly clear the headphone stand
+      basePos.set(-1.7, 0.4, 0.4)
       baseLook.set(-3.4, 0.4, 0.4)
     } else if (sector === 'right') {
       // Look at the Right Wall screen (Projects)
-      basePos.set(0.7, 0.25, 1.45)
+      // Moved camera X to 1.7 to perfectly clear the PC tower
+      basePos.set(1.7, 0.4, 0.4)
       baseLook.set(3.4, 0.4, 0.4)
     } else {
       // Center position looking at main desk and iMac monitor
@@ -1368,15 +1370,15 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
       >
         {/* Screen Frame */}
         <mesh>
-          <boxGeometry args={[1.3, 0.9, 0.02]} />
-          <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.2} />
+          <boxGeometry args={[1.7, 1.15, 0.02]} />
+          <meshStandardMaterial color="#0c0c0c" metalness={0.9} roughness={0.5} />
         </mesh>
         {/* Screen Bezel */}
         <mesh position={[0, 0, 0.012]}>
-          <boxGeometry args={[1.27, 0.87, 0.005]} />
+          <boxGeometry args={[1.66, 1.11, 0.005]} />
           <meshStandardMaterial color="#020305" roughness={0.08} metalness={0.9} />
         </mesh>
-        {/* Right Screen HTML Content - Light Glassmorphic Dashboard */}
+        {/* Right Screen HTML Content - Terminal Dashboard */}
         <Html
           transform
           occlude="blending"
@@ -1384,87 +1386,87 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           position={[0, 0, 0.018]}
           pointerEvents={sector === 'right' ? 'auto' : 'none'}
           style={{
-            width: '800px',
-            height: '560px',
-            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(241, 245, 249, 0.97) 100%)',
-            color: '#1e293b',
-            fontFamily: '"Outfit", "Inter", sans-serif',
-            padding: '28px',
+            width: '1000px',
+            height: '660px',
+            background: '#0a0a0a',
+            color: '#39ff14',
+            fontFamily: '"Courier New", Courier, monospace',
+            padding: '36px',
             boxSizing: 'border-box',
-            border: '1px solid rgba(99, 102, 241, 0.18)',
-            borderRadius: '12px',
+            border: '2px solid rgba(57, 255, 20, 0.8)',
+            borderRadius: '8px',
             opacity: sector === 'right' ? 1.0 : 0.4,
             transition: 'opacity 0.4s ease',
-            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.06)'
+            boxShadow: '0 0 30px rgba(57, 255, 20, 0.15)'
           }}
         >
           <div className="flex flex-col h-full justify-between">
             <div>
-              <div className="flex items-center justify-between border-b border-slate-200 pb-2.5 mb-4">
-                <span className="font-mono text-xs tracking-wider text-indigo-600 font-bold">SECTOR_02 // ARTIFACTS</span>
-                <span className="font-mono text-[10px] text-slate-400">STATUS: ONLINE</span>
+              <div className="flex items-center justify-between border-b border-[#39ff14]/30 pb-2.5 mb-4">
+                <span className="font-mono text-xs tracking-wider text-[#39ff14] font-bold">[ SECTOR_02 // ARTIFACTS ]</span>
+                <span className="font-mono text-[10px] text-[#39ff14]/70 animate-pulse">STATUS: ONLINE_</span>
               </div>
 
-              <h2 className="text-xl font-black tracking-tight text-slate-800 mb-1 font-sans">Project Database</h2>
-              <p className="text-slate-500 text-xs mb-4 font-sans opacity-95">
-                Hover cards to project blueprint on desk:
+              <h2 className="text-2xl font-black tracking-tight text-[#39ff14] mb-1 font-mono">&gt; PROJECT_DATABASE</h2>
+              <p className="text-[#39ff14]/70 text-xs mb-6 font-mono">
+                $ select_project --mode=desk_projection:
               </p>
 
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 {/* Project 1 */}
                 <div
-                  className={`p-3 border rounded-xl transition-all cursor-pointer ${activeProject === 1
-                    ? 'border-indigo-500 bg-indigo-50/50 shadow-sm text-indigo-950 font-bold'
-                    : 'border-slate-200/80 hover:border-indigo-300 hover:bg-slate-50/50 bg-transparent text-slate-700'
+                  className={`p-4 border font-mono transition-all cursor-pointer ${activeProject === 1
+                    ? 'border-[#39ff14] bg-[#39ff14] text-[#0a0a0a] shadow-[0_0_15px_rgba(57,255,20,0.4)] font-bold'
+                    : 'border-[#39ff14]/30 hover:border-[#39ff14] bg-transparent text-[#39ff14]/80'
                     }`}
                   onMouseEnter={() => setHoveredProject(1)}
                   onMouseLeave={() => setHoveredProject(null)}
                   onClick={(e) => { e.stopPropagation(); setActiveProject(1); }}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-xs">01 / Ferrari 3D Intro Sequence</span>
-                    <span className="text-[10px] font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-bold">R3F + GSAP</span>
+                    <span className="text-sm">&gt; 01 // Ferrari 3D Sequence</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${activeProject === 1 ? 'bg-[#0a0a0a] text-[#39ff14]' : 'bg-[#39ff14]/10 text-[#39ff14]'}`}>R3F + GSAP</span>
                   </div>
-                  <p className="text-[10.5px] text-slate-500 mt-1 font-normal leading-relaxed">Realistic chassis scale-up and camera-facing wheel roll sequence.</p>
+                  <p className={`text-[11px] mt-2 ${activeProject === 1 ? 'text-[#0a0a0a]/80' : 'text-[#39ff14]/60'}`}>Realistic chassis scale-up and camera-facing wheel roll sequence.</p>
                 </div>
 
                 {/* Project 2 */}
                 <div
-                  className={`p-3 border rounded-xl transition-all cursor-pointer ${activeProject === 2
-                    ? 'border-indigo-500 bg-indigo-50/50 shadow-sm text-indigo-950 font-bold'
-                    : 'border-slate-200/80 hover:border-indigo-300 hover:bg-slate-50/50 bg-transparent text-slate-700'
+                  className={`p-4 border font-mono transition-all cursor-pointer ${activeProject === 2
+                    ? 'border-[#39ff14] bg-[#39ff14] text-[#0a0a0a] shadow-[0_0_15px_rgba(57,255,20,0.4)] font-bold'
+                    : 'border-[#39ff14]/30 hover:border-[#39ff14] bg-transparent text-[#39ff14]/80'
                     }`}
                   onMouseEnter={() => setHoveredProject(2)}
                   onMouseLeave={() => setHoveredProject(null)}
                   onClick={(e) => { e.stopPropagation(); setActiveProject(2); }}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-xs">02 / Celestial Audio Space</span>
-                    <span className="text-[10px] font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-bold">GLSL Shaders</span>
+                    <span className="text-sm">&gt; 02 // Celestial Audio Space</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${activeProject === 2 ? 'bg-[#0a0a0a] text-[#39ff14]' : 'bg-[#39ff14]/10 text-[#39ff14]'}`}>GLSL Shaders</span>
                   </div>
-                  <p className="text-[10.5px] text-slate-500 mt-1 font-normal leading-relaxed">Interactive space environment built with custom shaders.</p>
+                  <p className={`text-[11px] mt-2 ${activeProject === 2 ? 'text-[#0a0a0a]/80' : 'text-[#39ff14]/60'}`}>Interactive space environment built with custom shaders.</p>
                 </div>
 
                 {/* Project 3 */}
                 <div
-                  className={`p-3 border rounded-xl transition-all cursor-pointer ${activeProject === 0
-                    ? 'border-indigo-500 bg-indigo-50/50 shadow-sm text-indigo-950 font-bold'
-                    : 'border-slate-200/80 hover:border-indigo-300 hover:bg-slate-50/50 bg-transparent text-slate-700'
+                  className={`p-4 border font-mono transition-all cursor-pointer ${activeProject === 0
+                    ? 'border-[#39ff14] bg-[#39ff14] text-[#0a0a0a] shadow-[0_0_15px_rgba(57,255,20,0.4)] font-bold'
+                    : 'border-[#39ff14]/30 hover:border-[#39ff14] bg-transparent text-[#39ff14]/80'
                     }`}
                   onMouseEnter={() => setHoveredProject(0)}
                   onMouseLeave={() => setHoveredProject(null)}
                   onClick={(e) => { e.stopPropagation(); setActiveProject(0); }}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-xs">03 / Virtual Tech Room</span>
-                    <span className="text-[10px] font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-bold">R3F + CSS3D</span>
+                    <span className="text-sm">&gt; 03 // Virtual Tech Room</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${activeProject === 0 ? 'bg-[#0a0a0a] text-[#39ff14]' : 'bg-[#39ff14]/10 text-[#39ff14]'}`}>R3F + CSS3D</span>
                   </div>
-                  <p className="text-[10.5px] text-slate-500 mt-1 font-normal leading-relaxed">This current sloped office workspace setup with mouse camera panning.</p>
+                  <p className={`text-[11px] mt-2 ${activeProject === 0 ? 'text-[#0a0a0a]/80' : 'text-[#39ff14]/60'}`}>This current sloped office workspace setup with mouse camera panning.</p>
                 </div>
               </div>
             </div>
 
-            <div className="text-[10px] text-slate-400 font-mono tracking-wider">
+            <div className="text-[10px] text-[#39ff14]/50 font-mono tracking-wider">
               _Click Screen or Desk to Return to Center_
             </div>
           </div>

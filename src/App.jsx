@@ -115,13 +115,13 @@ function App() {
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 120, damping: 18 }}
                   onClick={() => setSector('center')}
-                  className={`absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex items-center gap-3 backdrop-blur-md transition-all duration-300 cursor-pointer pointer-events-auto font-sans text-xs tracking-wider uppercase font-extrabold px-6 py-3.5 rounded-full ${
+                  className={`absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 backdrop-blur-md transition-all duration-300 cursor-pointer pointer-events-auto font-sans text-[9px] tracking-wider uppercase font-extrabold px-4 py-2 rounded-full ${
                     isDarkMode 
                       ? 'bg-[rgba(8,10,16,0.85)] text-indigo-200 hover:text-white border border-[rgba(255,255,255,0.08)] hover:border-indigo-400 shadow-[0_8px_30px_rgba(0,0,0,0.2)]' 
                       : 'bg-white/85 text-slate-800 hover:text-indigo-600 border border-slate-200/60 hover:border-indigo-300 shadow-[0_8px_30px_rgba(0,0,0,0.05)]'
                   }`}
                 >
-                  <svg className="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                   </svg>
                   RETURN TO DESK
