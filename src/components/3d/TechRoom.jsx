@@ -1388,86 +1388,143 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           style={{
             width: '1000px',
             height: '660px',
-            background: '#0a0a0a',
+            background: 'transparent',
             color: '#39ff14',
             fontFamily: '"Courier New", Courier, monospace',
-            padding: '36px',
+            padding: '0px',
             boxSizing: 'border-box',
-            border: '2px solid rgba(57, 255, 20, 0.8)',
-            borderRadius: '8px',
             opacity: sector === 'right' ? 1.0 : 0.4,
-            transition: 'opacity 0.4s ease',
-            boxShadow: '0 0 30px rgba(57, 255, 20, 0.15)'
+            transition: 'opacity 0.4s ease'
           }}
         >
-          <div className="flex flex-col h-full justify-between">
-            <div>
-              <div className="flex items-center justify-between border-b border-[#39ff14]/30 pb-2.5 mb-4">
-                <span className="font-mono text-xs tracking-wider text-[#39ff14] font-bold">[ SECTOR_02 // ARTIFACTS ]</span>
-                <span className="font-mono text-[10px] text-[#39ff14]/70 animate-pulse">STATUS: ONLINE_</span>
+          <div className="flex flex-col h-full w-full bg-[#0a0a0a] rounded-lg overflow-hidden border border-[#39ff14]/30 shadow-[0_15px_40px_rgba(0,0,0,0.85),0_0_30px_rgba(57,255,20,0.12)]">
+            {/* MacBook Title Bar */}
+            <div className="flex items-center justify-between bg-[#1a1a1a] border-b border-[#2d2d2d] px-4 py-2.5 select-none">
+              {/* Window Controls */}
+              <div className="flex items-center gap-1.5 w-1/4">
+                <div className="w-3 h-3 rounded-full bg-[#ff5f56] opacity-90"></div>
+                <div className="w-3 h-3 rounded-full bg-[#ffbd2e] opacity-90"></div>
+                <div className="w-3 h-3 rounded-full bg-[#27c93f] opacity-90"></div>
               </div>
-
-              <h2 className="text-2xl font-black tracking-tight text-[#39ff14] mb-1 font-mono">&gt; PROJECT_DATABASE</h2>
-              <p className="text-[#39ff14]/70 text-xs mb-6 font-mono">
-                $ select_project --mode=desk_projection:
-              </p>
-
-              <div className="space-y-3">
-                {/* Project 1 */}
-                <div
-                  className={`p-4 border font-mono transition-all cursor-pointer ${activeProject === 1
-                    ? 'border-[#39ff14] bg-[#39ff14] text-[#0a0a0a] shadow-[0_0_15px_rgba(57,255,20,0.4)] font-bold'
-                    : 'border-[#39ff14]/30 hover:border-[#39ff14] bg-transparent text-[#39ff14]/80'
-                    }`}
-                  onMouseEnter={() => setHoveredProject(1)}
-                  onMouseLeave={() => setHoveredProject(null)}
-                  onClick={(e) => { e.stopPropagation(); setActiveProject(1); }}
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">&gt; 01 // Ferrari 3D Sequence</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${activeProject === 1 ? 'bg-[#0a0a0a] text-[#39ff14]' : 'bg-[#39ff14]/10 text-[#39ff14]'}`}>R3F + GSAP</span>
-                  </div>
-                  <p className={`text-[11px] mt-2 ${activeProject === 1 ? 'text-[#0a0a0a]/80' : 'text-[#39ff14]/60'}`}>Realistic chassis scale-up and camera-facing wheel roll sequence.</p>
-                </div>
-
-                {/* Project 2 */}
-                <div
-                  className={`p-4 border font-mono transition-all cursor-pointer ${activeProject === 2
-                    ? 'border-[#39ff14] bg-[#39ff14] text-[#0a0a0a] shadow-[0_0_15px_rgba(57,255,20,0.4)] font-bold'
-                    : 'border-[#39ff14]/30 hover:border-[#39ff14] bg-transparent text-[#39ff14]/80'
-                    }`}
-                  onMouseEnter={() => setHoveredProject(2)}
-                  onMouseLeave={() => setHoveredProject(null)}
-                  onClick={(e) => { e.stopPropagation(); setActiveProject(2); }}
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">&gt; 02 // Celestial Audio Space</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${activeProject === 2 ? 'bg-[#0a0a0a] text-[#39ff14]' : 'bg-[#39ff14]/10 text-[#39ff14]'}`}>GLSL Shaders</span>
-                  </div>
-                  <p className={`text-[11px] mt-2 ${activeProject === 2 ? 'text-[#0a0a0a]/80' : 'text-[#39ff14]/60'}`}>Interactive space environment built with custom shaders.</p>
-                </div>
-
-                {/* Project 3 */}
-                <div
-                  className={`p-4 border font-mono transition-all cursor-pointer ${activeProject === 0
-                    ? 'border-[#39ff14] bg-[#39ff14] text-[#0a0a0a] shadow-[0_0_15px_rgba(57,255,20,0.4)] font-bold'
-                    : 'border-[#39ff14]/30 hover:border-[#39ff14] bg-transparent text-[#39ff14]/80'
-                    }`}
-                  onMouseEnter={() => setHoveredProject(0)}
-                  onMouseLeave={() => setHoveredProject(null)}
-                  onClick={(e) => { e.stopPropagation(); setActiveProject(0); }}
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">&gt; 03 // Virtual Tech Room</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${activeProject === 0 ? 'bg-[#0a0a0a] text-[#39ff14]' : 'bg-[#39ff14]/10 text-[#39ff14]'}`}>R3F + CSS3D</span>
-                  </div>
-                  <p className={`text-[11px] mt-2 ${activeProject === 0 ? 'text-[#0a0a0a]/80' : 'text-[#39ff14]/60'}`}>This current sloped office workspace setup with mouse camera panning.</p>
-                </div>
+              {/* Terminal Title */}
+              <div className="text-[11px] font-sans font-medium text-slate-400 text-center w-2/4 tracking-wide">
+                dsa_journey.log — zsh — 80×24
               </div>
+              {/* Right Spacer */}
+              <div className="w-1/4"></div>
             </div>
 
-            <div className="text-[10px] text-[#39ff14]/50 font-mono tracking-wider">
-              _Click Screen or Desk to Return to Center_
+            {/* Terminal Body */}
+            <div className="flex-1 p-[36px] flex flex-col justify-between overflow-y-auto">
+              <div>
+                <div className="flex items-center justify-between border-b border-[#39ff14]/30 pb-1.5 mb-2.5">
+                  <span className="font-mono text-xs tracking-wider text-[#39ff14] font-bold">[ SECTOR_02 // DSA_JOURNEY ]</span>
+                  <span className="font-mono text-[10px] text-[#39ff14]/70 animate-pulse">STATUS: ONLINE_</span>
+                </div>
+
+                <div className="flex items-baseline gap-3 mb-3.5">
+                  <h2 className="text-xl font-bold tracking-tight text-[#39ff14] font-mono">&gt; DSA_JOURNEY</h2>
+                  <span className="text-[#39ff14]/60 text-[11px] font-mono">$ cat dsa_journey.log</span>
+                </div>
+
+                {/* Heatmap Section (Top) - Clean, borderless, and enlarged */}
+                <div className="flex gap-6 mb-4.5">
+                  {/* Heatmap 1 */}
+                  <div className="flex-1 h-[215px] flex items-center justify-center">
+                    <img 
+                      src="/leetcode-heatmap1.png" 
+                      alt="LeetCode Heatmap 2025" 
+                      className="w-full h-full object-contain filter brightness-105 contrast-[1.02]" 
+                    />
+                  </div>
+
+                  {/* Heatmap 2 */}
+                  <div className="flex-1 h-[215px] flex items-center justify-center">
+                    <img 
+                      src="/leetcode-heatmap2.png" 
+                      alt="LeetCode Heatmap 2026/Recent" 
+                      className="w-full h-full object-contain filter brightness-105 contrast-[1.02]" 
+                    />
+                  </div>
+                </div>
+
+                {/* Bottom Section - Columns layout */}
+                <div className="flex flex-row gap-6 items-start mb-4">
+                  {/* Bottom Left: Journey Narrative */}
+                  <div className="w-1/2 font-mono text-[9.5px] text-[#39ff14]/55 leading-normal border border-[#39ff14]/20 p-4 bg-[#0a0a0a]/50 rounded-lg h-[165px] overflow-hidden">
+                    <div className="text-[#39ff14]/75 mb-2 font-mono">// JOURNEY_SUMMARY</div>
+                    <div># Started DSA in 1st year, more out of curiosity than confidence.</div>
+                    <div># Struggled a lot in the beginning brute force, wrong approaches,</div>
+                    <div># giving up mid-problem.</div>
+                    <br />
+                    <div># Somewhere along the way it became a habit rather than a task.</div>
+                    <div># Solving consistently since, one problem at a time.</div>
+                    <br />
+                    <div># Still learning. Still solving. Still counting streaks and still stuck in dp</div>
+                  </div>
+
+                  {/* Bottom Right: Code CTA and Profiles */}
+                  <div className="w-1/2 flex flex-col justify-between h-[165px]">
+                    {/* LeetCode Profile CTA */}
+                    <div>
+                      <a
+                        href="https://leetcode.com/u/Unnati_1705/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center justify-center gap-2.5 p-3 border border-[#39ff14] bg-[#39ff14] text-[#0a0a0a] shadow-[0_0_15px_rgba(57,255,20,0.4)] font-bold transition-all hover:scale-[1.01] duration-200 select-none cursor-pointer rounded"
+                      >
+                        <img src="/leetcode-logo.png" alt="LeetCode Logo" className="w-5 h-5 object-contain" />
+                        <span className="text-sm font-mono">Check My LeetCode Profile & Badges</span>
+                      </a>
+                    </div>
+
+                    {/* Other Profile Links */}
+                    <div>
+                      <div className="text-[11px] text-[#39ff14]/80 mb-2 font-mono font-bold">// OTHER_CODING_PROFILES:</div>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        {/* HackerRank */}
+                        <a href="https://www.hackerrank.com/profile/unnatijadon17" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="hover:underline text-[#39ff14]/90 hover:text-[#39ff14] font-mono font-bold flex items-center gap-2">
+                          <svg className="w-4 h-4 text-[#2ec866] fill-current" viewBox="0 0 24 24">
+                            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.329 14.286H12.98v-3.714H11.02v3.714H8.671V7.714H11.02V10.82h1.96V7.714h2.348v8.572z"/>
+                          </svg>
+                          HackerRank
+                        </a>
+
+                        {/* GeeksforGeeks */}
+                        <a href="https://www.geeksforgeeks.org/profile/23it100fyb" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="hover:underline text-[#39ff14]/90 hover:text-[#39ff14] font-mono font-bold flex items-center gap-2">
+                          <svg className="w-4 h-4 text-[#2f8d46] fill-current" viewBox="0 0 24 24">
+                            <path d="M21.45 14.315c-.143.28-.334.532-.565.745a3.691 3.691 0 0 1-1.104.695 4.51 4.51 0 0 1-3.116-.016 3.79 3.79 0 0 1-2.135-2.078 3.571 3.571 0 0 1-.13-.353h7.418a4.26 4.26 0 0 1-.368 1.008zm-11.99-.654a3.793 3.793 0 0 1-2.134 2.078 4.51 4.51 0 0 1-3.117.016 3.7 3.7 0 0 1-1.104-.695 2.652 2.652 0 0 1-.564-.745 4.221 4.221 0 0 1-.368-1.006H9.59c-.038.12-.08.238-.13.352zm14.501-1.758a3.849 3.849 0 0 0-.082-.475l-9.634-.008a3.932 3.932 0 0 1 1.143-2.348c.363-.35.79-.625 1.26-.809a3.97 3.97 0 0 1 4.484.957l1.521-1.49a5.7 5.7 0 0 0-1.922-1.357 6.283 6.283 0 0 0-2.544-.49 6.35 6.35 0 0 0-2.405.457 6.007 6.007 0 0 0-1.963 1.276 6.142 6.142 0 0 0-1.325 1.94 5.862 5.862 0 0 0-.466 1.864h-.063a5.857 5.857 0 0 0-.467-1.865 6.13 6.13 0 0 0-1.325-1.939A6 6 0 0 0 8.21 6.34a6.698 6.698 0 0 0-4.949.031A5.708 5.708 0 0 0 1.34 7.73l1.52 1.49a4.166 4.166 0 0 1 4.484-.958c.47.184.898.46 1.26.81.368.36.66.792.859 1.268.146.344.242.708.285 1.08l-9.635.008A4.714 4.714 0 0 0 0 12.457a6.493 6.493 0 0 0 .345 2.127 4.927 4.927 0 0 0 1.08 1.783c.528.56 1.17 1.8 1.88 1.293a6.454 6.454 0 0 0 2.504.457c.824.005 1.64-.15 2.404-.457a5.986 5.986 0 0 0 1.964-1.277 6.116 6.116 0 0 0 1.686-3.076h.273a6.13 6.13 0 0 0 1.686 3.077 5.99 5.99 0 0 0 1.964 1.276 6.345 6.345 0 0 0 2.405.457 6.45 6.45 0 0 0 2.502-.457 5.42 5.42 0 0 0 1.882-1.293 4.928 4.928 0 0 0 1.08-1.783A6.52 6.52 0 0 0 24 12.457a4.757 4.757 0 0 0-.039-.554z"/>
+                          </svg>
+                          GeeksforGeeks
+                        </a>
+
+                        {/* Codeforces */}
+                        <a href="https://codeforces.com/profile/unnati_1711" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="hover:underline text-[#39ff14]/90 hover:text-[#39ff14] font-mono font-bold flex items-center gap-2">
+                          <svg className="w-4 h-4" viewBox="0 0 24 24">
+                            <rect x="3" y="10" width="4.5" height="11" rx="1" fill="#FFCA28" />
+                            <rect x="9.75" y="5" width="4.5" height="16" rx="1" fill="#2196F3" />
+                            <rect x="16.5" y="13" width="4.5" height="8" rx="1" fill="#F44336" />
+                          </svg>
+                          Codeforces
+                        </a>
+
+                        {/* CodeChef */}
+                        <a href="https://www.codechef.com/users/span_frogs_65" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="hover:underline text-[#39ff14]/90 hover:text-[#39ff14] font-mono font-bold flex items-center gap-2">
+                          <svg className="w-4 h-4 text-[#a06840] fill-current" viewBox="0 0 24 24">
+                            <path d="M11.2574.0039c-.37.0101-.7353.041-1.1003.095C9.6164.153 9.0766.4236 8.482.694c-.757.3244-1.5147.6486-2.2176.7027-1.1896.3785-1.568.919-1.8925 1.3516 0 .054-.054.1079-.054.1079-.4325.865-.4873 1.73-.325 2.5952.1621.5407.3786 1.0282.5408 1.5148.3785 1.0274.7578 2.0007.92 3.1362.1622.3244.3235.7571.4316 1.1897.2704.8651.542 1.8383 1.353 2.5952l.0057-.0028c.0175.0183.0301.0387.0482.0568.0072-.0036.0141-.0063.0213-.0099l-.0213-.5849c.6489-.9733 1.5673-1.6221 2.865-1.8925.5195-.1093 1.081-.1497 1.6625-.1278a8.7733 8.7733 0 0 1 1.7988.2357c1.4599.3785 2.595 1.1358 2.6492 1.7846.0273.3549.0398.6952.0326 1.0364-.001.064-.0046.1285-.007.193l.1362.0682c.075-.0375.1424-.107.2059-.1902.0008-.001.002-.002.0028-.0028.0018-.0023.0039-.0061.0057-.0085.0396-.0536.0747-.1236.1107-.1931.0188-.0377.0372-.0866.0554-.1292.2048-.4622.362-1.1536.538-1.9635.0541-.2703.1092-.4864.1633-.7027.4326-.9733 1.0266-1.8382 1.6213-2.6492.9733-1.3518 1.8928-2.5962 1.7846-4.0561-1.784-3.4608-4.2718-4.0017-5.5695-4.272-.2163-.0541-.3233-.0539-.4856-.108-1.3382-.2433-2.4945-.3953-3.6046-.3648zm5.0428 14.3788a9.8602 9.8602 0 0 0-.0326-.9824c-.0541-.703-1.1892-1.46-2.7032-1.8386-.588-.1336-1.1764-.2142-1.7448-.2356-.539-.0137-1.0657.0248-1.5546.1277-1.2436.2704-2.2162.9193-2.811 1.8925l.0511 1.431c.6672-.3558 1.7326-.8747 3.139-.9994.0662-.0059.1368-.0059.2044-.0099.1177-.013.2667-.044.4444-.044 1.6075 0 3.2682.5336 4.8767 1.6483.039-.2744.0611-.549.071-.8234l.044.0227c.0028-.0622.0143-.1268.0156-.1888z"/>
+                          </svg>
+                          CodeChef
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-[10px] text-[#39ff14]/50 font-mono tracking-wider pt-2 border-t border-[#39ff14]/10">
+                _Click Screen or Desk to Return to Center_
+              </div>
             </div>
           </div>
         </Html>
