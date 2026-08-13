@@ -1,9 +1,39 @@
-import React from 'react'
-import { Canvas } from '@react-three/fiber'
+import React, { useEffect } from 'react'
+import * as THREE from 'three'
+import { Canvas, useThree } from '@react-three/fiber'
 import { Environment } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import Ferrari from './Ferrari'
 import TechRoom from './TechRoom'
+
+function ResponsiveCamera({ isDarkMode, introComplete }) {
+  const { camera, size, scene } = useThree()
+  
+  useEffect(() => {
+    const colorStr = introComplete ? (isDarkMode ? '#050508' : '#faf8f5') : '#000000'
+    scene.background = new THREE.Color(colorStr)
+  }, [isDarkMode, introComplete, scene])
+  
+  useEffect(() => {
+    const aspect = size.width / size.height
+    if (aspect < 1.0) {
+      // Portrait / Mobile
+      camera.fov = 72
+      camera.position.set(0, 2.3, 10.5)
+    } else if (aspect < 1.4) {
+      // Tablet / Narrow desktop
+      camera.fov = 55
+      camera.position.set(0, 2.1, 9.5)
+    } else {
+      // Desktop
+      camera.fov = 45
+      camera.position.set(0, 2, 9)
+    }
+    camera.updateProjectionMatrix()
+  }, [size.width, size.height, camera])
+
+  return null
+}
 
 export default function Scene({ 
   onIntroComplete, 
@@ -21,8 +51,7 @@ export default function Scene({
       style={{ backgroundColor: '#000000' }}
     >
       <Canvas camera={{ position: [0, 2, 9], fov: 45 }}>
-        {/* Dynamic background color transition (black for car intro, dark slate for night mode, light slate-blue for day mode) */}
-        <color attach="background" args={[introComplete ? (isDarkMode ? '#050508' : '#f1f5f9') : '#000000']} />
+        <ResponsiveCamera isDarkMode={isDarkMode} introComplete={introComplete} />
         
         {/* Studio Lighting - Dimmed for car, and dynamic for day vs cozy night mode */}
         {!introComplete ? (
@@ -33,15 +62,15 @@ export default function Scene({
           </>
         ) : (
           <>
-            <ambientLight intensity={isDarkMode ? 0.15 : 0.65} color="#f8fafc" />
+            <ambientLight intensity={isDarkMode ? 0.15 : 0.55} color="#f8fafc" />
             {/* Sunlight/Moonlight coming through the window */}
             <directionalLight 
               position={[0, 4, -4]} 
-              intensity={isDarkMode ? 0.15 : 1.25} 
-              color={isDarkMode ? '#a5f3fc' : '#fffbee'} 
+              intensity={isDarkMode ? 0.20 : 0.85} 
+              color={isDarkMode ? '#e0f2fe' : '#fffbee'} 
             />
             {/* Front fill light */}
-            <directionalLight position={[0, 3, 4]} intensity={isDarkMode ? 0.05 : 0.35} color="#ffffff" />
+            <directionalLight position={[0, 3, 4]} intensity={isDarkMode ? 0.05 : 0.25} color="#ffffff" />
           </>
         )}
 
@@ -64,7 +93,11 @@ export default function Scene({
 
         {/* Cinematic Post-Processing: Bloom makes the headlights and screens actually GLOW */}
         <EffectComposer disableNormalPass>
-          <Bloom luminanceThreshold={0.85} mipmapBlur intensity={1.5} />
+          <Bloom 
+            luminanceThreshold={isDarkMode ? 0.85 : 0.98} 
+            mipmapBlur 
+            intensity={isDarkMode ? 1.5 : 0.2} 
+          />
         </EffectComposer>
       </Canvas>
     </div>

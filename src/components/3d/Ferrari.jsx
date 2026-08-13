@@ -60,17 +60,17 @@ export default function Ferrari({ onIntroComplete, ...props }) {
     wheelFR.current.rotation.order = "ZYX"
 
     // We rotate them 90 degrees on Y so they face the camera.
-    gsap.set(wheelRL.current.position, { x: -15, z: posRL_Z })
-    gsap.set(wheelRL.current.rotation, { x: -Math.PI / 2, y: Math.PI / 2, z: 0 })
+    gsap.set(wheelRL.current.position, { x: posRL_X, y: 0.358, z: posRL_Z })
+    gsap.set(wheelRL.current.rotation, { x: -Math.PI / 2, y: 0, z: 0 })
 
-    gsap.set(wheelFL.current.position, { x: -15, z: posFL_Z })
-    gsap.set(wheelFL.current.rotation, { x: -Math.PI / 2, y: Math.PI / 2, z: 0 })
+    gsap.set(wheelFL.current.position, { x: posFL_X, y: 0.358, z: posFL_Z })
+    gsap.set(wheelFL.current.rotation, { x: -Math.PI / 2, y: 0, z: 0 })
 
-    gsap.set(wheelRR.current.position, { x: 15, z: posRR_Z })
-    gsap.set(wheelRR.current.rotation, { x: -Math.PI / 2, y: -Math.PI / 2, z: 0 })
+    gsap.set(wheelRR.current.position, { x: posRR_X, y: 0.358, z: posRR_Z })
+    gsap.set(wheelRR.current.rotation, { x: -Math.PI / 2, y: 0, z: 0 })
 
-    gsap.set(wheelFR.current.position, { x: 15, z: posFR_Z })
-    gsap.set(wheelFR.current.rotation, { x: -Math.PI / 2, y: -Math.PI / 2, z: 0 })
+    gsap.set(wheelFR.current.position, { x: posFR_X, y: 0.361, z: posFR_Z })
+    gsap.set(wheelFR.current.rotation, { x: -Math.PI / 2, y: 0, z: 0 })
     
     // Chassis starts faded/scaled down. Initial rotation forced to face camera
     gsap.set(groupRef.current.rotation, { y: Math.PI })
@@ -78,35 +78,6 @@ export default function Ferrari({ onIntroComplete, ...props }) {
 
     // Step 1: Chassis comes in and scales up
     tl.to(groupRef.current.scale, { x: 1, y: 1, z: 1, duration: 1.0, ease: "power3.out" })
-
-    // Step 2: Wheels attach sequentially (Back Left, Back Right, Front Left, Front Right)
-    // They roll in like a hoop (animating Z), then snap to their attached position (animating Y)
-    const rDur = 0.8 // Roll duration (faster)
-    const sDur = 0.2 // Snap duration (faster)
-    const spinAmt = Math.PI * 4
-    
-    // Back Left (RL)
-    tl.to(wheelRL.current.position, { x: posRL_X, duration: rDur, ease: "power1.out" }, "+=0.2")
-    tl.to(wheelRL.current.rotation, { z: `-=${spinAmt}`, duration: rDur, ease: "power1.out" }, "<")
-    tl.to(wheelRL.current.rotation, { y: 0, duration: sDur, ease: "power2.inOut" })
-    
-    // Back Right (RR)
-    tl.to(wheelRR.current.position, { x: posRR_X, duration: rDur, ease: "power1.out" })
-    tl.to(wheelRR.current.rotation, { z: `+=${spinAmt}`, duration: rDur, ease: "power1.out" }, "<")
-    tl.to(wheelRR.current.rotation, { y: 0, duration: sDur, ease: "power2.inOut" })
-    
-    // Front Left (FL)
-    tl.to(wheelFL.current.position, { x: posFL_X, duration: rDur, ease: "power1.out" })
-    tl.to(wheelFL.current.rotation, { z: `-=${spinAmt}`, duration: rDur, ease: "power1.out" }, "<")
-    tl.to(wheelFL.current.rotation, { y: 0, duration: sDur, ease: "power2.inOut" })
-    
-    // Front Right (FR)
-    tl.to(wheelFR.current.position, { x: posFR_X, duration: rDur, ease: "power1.out" })
-    tl.to(wheelFR.current.rotation, { z: `+=${spinAmt}`, duration: rDur, ease: "power1.out" }, "<")
-    tl.to(wheelFR.current.rotation, { y: 0, duration: sDur, ease: "power2.inOut" })
-
-    // Step 3: Chassis bump as wheels lock in
-    tl.to(chassisRef.current.position, { y: "+=0.05", duration: 0.15, yoyo: true, repeat: 1, ease: "power1.inOut" })
 
     // Step 4: Move slowly 360 degrees showing all the smartness
     tl.to(groupRef.current.rotation, { 

@@ -15,7 +15,20 @@ function App() {
   const [introComplete, setIntroComplete] = useState(false)
   const [sector, setSector] = useState('center') // 'center', 'left', 'right'
   const [activeProject, setActiveProject] = useState(0) // 0: Torus Knot, 1: Ferrari, 2: Space Planet
-  const [isDarkMode, setIsDarkMode] = useState(true) // Default to cozy dark night mode
+  const [isDarkMode, setIsDarkMode] = useState(false) // Default to professional light day mode
+
+  // Force scroll to top on mount to ensure intro animation is visible on reload
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
+    }
+    return () => {
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'auto'
+      }
+    }
+  }, [])
 
   // Lock scrolling while the intro animation is playing
   useEffect(() => {
@@ -57,7 +70,7 @@ function App() {
 
         {/* Skip Hint */}
         {!introComplete && (
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 pointer-events-none select-none font-mono text-[9px] tracking-widest text-indigo-300/40 uppercase text-center animate-pulse">
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 pointer-events-none select-none font-mono text-xs md:text-sm tracking-widest font-black text-indigo-200/80 uppercase text-center animate-pulse">
             Double-click anywhere to skip intro
           </div>
         )}
@@ -77,10 +90,10 @@ function App() {
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 120, damping: 18 }}
                   onClick={() => setSector('left')}
-                  className={`absolute left-8 top-[35%] -translate-y-1/2 z-10 flex flex-col items-center gap-3 transition-all duration-300 cursor-pointer group px-4 py-8 rounded-2xl pointer-events-auto bg-white text-slate-900 hover:text-indigo-600 border border-slate-200 shadow-xl`}
+                  className={`absolute left-3 md:left-8 top-[35%] -translate-y-1/2 z-10 flex flex-col items-center gap-2 md:gap-3 transition-all duration-300 cursor-pointer group px-2 py-4 md:px-4 md:py-8 rounded-xl md:rounded-2xl pointer-events-auto bg-white text-slate-900 hover:text-indigo-600 border border-slate-200 shadow-xl`}
                 >
-                  <span className="font-sans text-xs tracking-widest uppercase [writing-mode:vertical-lr] rotate-180 mb-2 font-extrabold">DEVELOPMENT JOURNEY</span>
-                  <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="font-sans text-[10px] md:text-xs tracking-widest uppercase [writing-mode:vertical-lr] rotate-180 mb-1 md:mb-2 font-extrabold">DEVELOPMENT JOURNEY</span>
+                  <svg className="w-4 h-4 md:w-5 md:h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                   </svg>
                 </motion.button>
@@ -96,10 +109,10 @@ function App() {
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 120, damping: 18 }}
                   onClick={() => setSector('right')}
-                  className={`absolute right-8 top-[35%] -translate-y-1/2 z-10 flex flex-col items-center gap-3 transition-all duration-300 cursor-pointer group px-4 py-8 rounded-2xl pointer-events-auto bg-white text-slate-900 hover:text-indigo-600 border border-slate-200 shadow-xl`}
+                  className={`absolute right-3 md:right-8 top-[35%] -translate-y-1/2 z-10 flex flex-col items-center gap-2 md:gap-3 transition-all duration-300 cursor-pointer group px-2 py-4 md:px-4 md:py-8 rounded-xl md:rounded-2xl pointer-events-auto bg-white text-slate-900 hover:text-indigo-600 border border-slate-200 shadow-xl`}
                 >
-                  <span className="font-sans text-xs tracking-widest uppercase [writing-mode:vertical-lr] mb-2 font-extrabold">DSA JOURNEY</span>
-                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="font-sans text-[10px] md:text-xs tracking-widest uppercase [writing-mode:vertical-lr] mb-1 md:mb-2 font-extrabold">DSA JOURNEY</span>
+                  <svg className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </motion.button>
@@ -134,10 +147,10 @@ function App() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 2, duration: 1 }}
-                  className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none flex flex-col items-center gap-2 text-indigo-300/50"
+                  className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 pointer-events-none flex flex-col items-center gap-3 text-slate-950 drop-shadow-[0_2px_10px_rgba(255,255,255,0.8)]"
                  >
-                   <span className="text-[10px] uppercase tracking-widest font-mono">Scroll to explore</span>
-                   <svg className="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                   <span className="text-lg uppercase tracking-[0.35em] font-black font-mono">Scroll to explore</span>
+                   <svg className="w-9 h-9 animate-bounce text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
                  </motion.div>
               )}
             </>
@@ -146,7 +159,7 @@ function App() {
       </div>
 
       {/* Main Content Sections - Rendered below Hero */}
-      <div className="relative z-10 bg-[#03050a] pt-10">
+      <div className="relative z-10 bg-[#faf8f5] text-slate-800 light-mode-portfolio pt-10">
         <About />
         <Education />
         <Experience />

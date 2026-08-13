@@ -54,8 +54,8 @@ function TypewriterText() {
 
   return (
     <span className="inline-block min-w-[200px]">
-      <span className="text-indigo-400 font-bold">{words[index].substring(0, subIndex)}</span>
-      <span className={`${blink ? 'opacity-100' : 'opacity-0'} transition-opacity text-white`}>|</span>
+      <span className="text-indigo-600 font-bold">{words[index].substring(0, subIndex)}</span>
+      <span className={`${blink ? 'opacity-100' : 'opacity-0'} transition-opacity text-slate-800`}>|</span>
     </span>
   );
 }
@@ -236,6 +236,15 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
     return mat
   }, [materials])
 
+  // Cloned taillight material for the miniature toy Ferrari to keep its glow soft and subtle
+  const toyTaillightMaterial = useMemo(() => {
+    if (!materials || !materials.Taillight_Glass) return null
+    const mat = materials.Taillight_Glass.clone()
+    mat.emissive = new THREE.Color("#ff0000")
+    mat.emissiveIntensity = 1.5 // Soft, professional glow instead of blazing bright 30
+    return mat
+  }, [materials])
+
   useFrame((state) => {
     // 1. Rotate PC fans and Levitating Headphone
     if (pcFansRef.current) {
@@ -333,122 +342,29 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
       {/* 1. ROOM STRUCTURE (LIGHT COZY STUDY ROOM WALLS, WINDOW, GARDEN BACKGROUND) */}
       {/* ========================================================================= */}
 
-      {/* Back Wall Left Part (Slate-800 Dark Wall) */}
+      {/* Back Wall Left Part */}
       <mesh position={[-3.125, 1.2, -1.8]} onClick={(e) => handleWallClick('center', e)}>
         <boxGeometry args={[1.75, 5, 0.05]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.8} />
+        <meshBasicMaterial color={isDarkMode ? '#111827' : '#faf8f5'} />
       </mesh>
 
       {/* Back Wall Right Part */}
       <mesh position={[1.525, 1.2, -1.8]} onClick={(e) => handleWallClick('center', e)}>
         <boxGeometry args={[4.95, 5, 0.05]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.8} />
+        <meshBasicMaterial color={isDarkMode ? '#111827' : '#faf8f5'} />
       </mesh>
 
-      {/* Wall Calendar (JULY 2026) */}
-      <group position={[0.2, 1.35, -1.76]} scale={0.75}>
-        {/* Calendar Frame */}
-        <mesh position={[0, 0, -0.01]}>
-          <boxGeometry args={[1.0, 0.75, 0.02]} />
-          <meshStandardMaterial color={isDarkMode ? "#0f172a" : "#f1f5f9"} roughness={0.9} />
-        </mesh>
-        
-        {/* HTML Content for Calendar UI */}
-        <Html 
-          transform 
-          occlude="blending"
-          distanceFactor={1.2}
-          position={[0, 0, 0.005]}
-        >
-          <div style={{
-            width: '480px',
-            height: '360px',
-            backgroundColor: isDarkMode ? 'rgba(21, 25, 34, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-            border: `2px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`,
-            borderRadius: '8px',
-            color: isDarkMode ? '#f8fafc' : '#0f172a',
-            fontFamily: 'sans-serif',
-            padding: '16px',
-            boxSizing: 'border-box',
-            display: 'flex',
-            flexDirection: 'column',
-            boxShadow: isDarkMode 
-              ? 'inset 0 0 20px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.5)' 
-              : 'inset 0 0 20px rgba(0,0,0,0.05), 0 10px 30px rgba(0,0,0,0.1)'
-          }}>
-            {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `2px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`, paddingBottom: '8px', marginBottom: '8px' }}>
-              <h2 style={{ margin: 0, fontSize: '32px', fontWeight: '600', letterSpacing: '1px' }}>JULY</h2>
-              <h2 style={{ margin: 0, fontSize: '32px', fontWeight: '400' }}>2026</h2>
-            </div>
-            
-            {/* Days of Week */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px', textAlign: 'center', fontSize: '11px', marginBottom: '4px', color: isDarkMode ? '#94a3b8' : '#64748b' }}>
-              <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
-            </div>
-            
-            {/* Dates Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gridTemplateRows: 'repeat(5, 1fr)', gap: '2px', flex: 1 }}>
-              {Array.from({length: 35}).map((_, index) => {
-                const dayNumber = index - 2; // Offset so July 1st starts on a Wednesday
-                const date = dayNumber > 0 && dayNumber <= 31 ? dayNumber : '';
-                
-                // Content for specific days
-                const task = 
-                  date === 10 ? { text: 'API Design', done: true } :
-                  date === 19 ? { text: 'Deploy DB', done: true } :
-                  date === 20 ? { text: 'Code Review', done: true } :
-                  date === 22 ? { text: 'Fix UI Bugs', done: true } :
-                  date === 27 ? { text: 'Client Demo', done: false } : null;
-
-                return (
-                  <div key={index} style={{
-                    border: `1px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`,
-                    position: 'relative',
-                    padding: '2px 4px',
-                    fontSize: '11px',
-                    backgroundColor: task 
-                      ? (isDarkMode ? 'rgba(51, 65, 85, 0.4)' : 'rgba(241, 245, 249, 0.8)') 
-                      : 'transparent',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    opacity: date ? 1 : (isDarkMode ? 0.2 : 0.4)
-                  }}>
-                    <span>{date}</span>
-                    {task && (
-                      <div style={{ marginTop: 'auto', textAlign: 'center' }}>
-                        <div style={{ fontSize: '14px', color: isDarkMode ? '#f8fafc' : '#3b82f6', marginBottom: '-1px' }}>{task.done ? '☑' : '☐'}</div>
-                        <div style={{ fontSize: '6.5px', color: isDarkMode ? '#cbd5e1' : '#475569', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {task.text}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Bottom Footer Tasks */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', marginTop: '10px', color: isDarkMode ? '#cbd5e1' : '#475569', paddingTop: '8px', borderTop: `1px solid ${isDarkMode ? '#334155' : '#e2e8f0'}` }}>
-              <div>☑ Setup Database</div>
-              <div>☐ Write Unit Tests</div>
-              <div>☑ Fix CORS issues</div>
-              <div>☑ Daily Standup</div>
-            </div>
-          </div>
-        </Html>
-      </group>
 
       {/* Back Wall Bottom Part (Under window) */}
       <mesh position={[-1.6, -0.4, -1.8]} onClick={(e) => handleWallClick('center', e)}>
         <boxGeometry args={[1.3, 1.8, 0.05]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.8} />
+        <meshBasicMaterial color={isDarkMode ? '#111827' : '#faf8f5'} />
       </mesh>
 
       {/* Back Wall Top Part (Above window) */}
       <mesh position={[-1.6, 2.54, -1.8]} onClick={(e) => handleWallClick('center', e)}>
         <boxGeometry args={[1.3, 1.6, 0.05]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.8} />
+        <meshBasicMaterial color={isDarkMode ? '#111827' : '#faf8f5'} />
       </mesh>
 
       {/* Interactive Wall Light Switch (Right side back wall) */}
@@ -459,10 +375,10 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
       {/* ========================================================================= */}
       <group position={[-1.6, 0, 0]}>
         {/* Window Frame Borders (Clean White Wood) */}
-        <mesh position={[0, 1.72, -1.77]}><boxGeometry args={[1.3, 0.04, 0.06]} /><meshStandardMaterial color="#cbd5e1" roughness={0.5} /></mesh>
-        <mesh position={[0, 0.5, -1.77]}><boxGeometry args={[1.3, 0.04, 0.08]} /><meshStandardMaterial color="#cbd5e1" roughness={0.5} /></mesh>
-        <mesh position={[-0.63, 1.11, -1.77]}><boxGeometry args={[0.04, 1.26, 0.04]} /><meshStandardMaterial color="#cbd5e1" roughness={0.5} /></mesh>
-        <mesh position={[0.63, 1.11, -1.77]}><boxGeometry args={[0.04, 1.26, 0.04]} /><meshStandardMaterial color="#cbd5e1" roughness={0.5} /></mesh>
+        <mesh position={[0, 1.72, -1.77]}><boxGeometry args={[1.3, 0.04, 0.06]} /><meshBasicMaterial color={isDarkMode ? '#1f2937' : '#faf8f5'} /></mesh>
+        <mesh position={[0, 0.5, -1.77]}><boxGeometry args={[1.3, 0.04, 0.08]} /><meshBasicMaterial color={isDarkMode ? '#1f2937' : '#faf8f5'} /></mesh>
+        <mesh position={[-0.63, 1.11, -1.77]}><boxGeometry args={[0.04, 1.26, 0.04]} /><meshBasicMaterial color={isDarkMode ? '#1f2937' : '#faf8f5'} /></mesh>
+        <mesh position={[0.63, 1.11, -1.77]}><boxGeometry args={[0.04, 1.26, 0.04]} /><meshBasicMaterial color={isDarkMode ? '#1f2937' : '#faf8f5'} /></mesh>
 
         {/* Single Clean Glass Pane (No grid dividers) */}
         <mesh position={[0, 1.11, -1.78]}>
@@ -554,7 +470,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
             {/* Flat Grass Ground Plane */}
             <mesh position={[0, -0.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
               <planeGeometry args={[5, 2]} />
-              <meshStandardMaterial color="#4ade80" roughness={1.0} />
+              <meshStandardMaterial color="#2a3b2e" roughness={1.0} />
             </mesh>
 
             {/* Left Pine Tree (Deep Forest Green) */}
@@ -594,7 +510,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         )}
       </group>
 
-      {/* Left Wall (Slate-800 Dark Wall) */}
+      {/* Left Wall */}
       <mesh
         position={[-3.5, 1.2, 1.0]}
         rotation={[0, Math.PI / 2, 0]}
@@ -603,10 +519,10 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         onPointerOut={handlePointerOut}
       >
         <boxGeometry args={[6, 5, 0.05]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.8} />
+        <meshBasicMaterial color={isDarkMode ? '#111827' : '#faf8f5'} />
       </mesh>
 
-      {/* Right Wall (Slate-800 Dark Wall) */}
+      {/* Right Wall */}
       <mesh
         position={[3.5, 1.2, 1.0]}
         rotation={[0, -Math.PI / 2, 0]}
@@ -615,7 +531,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         onPointerOut={handlePointerOut}
       >
         <boxGeometry args={[6, 5, 0.05]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.8} />
+        <meshBasicMaterial color={isDarkMode ? '#111827' : '#faf8f5'} />
       </mesh>
 
       {/* Floor (Light Brown / Natural Wood Texture Tone) */}
@@ -712,7 +628,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
 
       <group
         position={[0, 0.45, -0.6]}
-        scale={0.80}
+        scale={1.08}
         onClick={(e) => handleWallClick('center', e)}
         onPointerOver={(sector !== 'center') ? handlePointerOver : undefined}
         onPointerOut={handlePointerOut}
@@ -829,8 +745,8 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           style={{
             width: '1440px',
             height: '470px',
-            background: '#0f172a',
-            color: '#f8fafc',
+            background: '#ffffff',
+            color: '#0f172a',
             fontFamily: '"Outfit", "Inter", sans-serif',
             boxSizing: 'border-box',
             borderRadius: '8px',
@@ -840,23 +756,33 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
             userSelect: 'none'
           }}
         >
-          <div className="flex flex-row h-full w-full bg-[#0f172a] select-none text-white">
-            {/* Left Column: Hero Content */}
-            <div className="w-[65%] h-full flex flex-col justify-center px-24 relative overflow-hidden border-r border-slate-800">
-              {/* Background ambient glow */}
-              <div className="absolute bottom-[-100px] left-[-50px] w-[400px] h-[400px] bg-indigo-600 rounded-full mix-blend-screen filter blur-[120px] opacity-20 animate-pulse"></div>
+          <div className="flex flex-row h-full w-full bg-white select-none text-slate-900">
+            {/* Left Column: Photo / Profile */}
+            <div className="w-[35%] h-full flex flex-col relative overflow-hidden bg-white">
+              {/* The Photo */}
+              <div className="w-full h-full absolute inset-0 group cursor-pointer bg-white overflow-hidden">
+                <img 
+                  src="/profile.png" 
+                  alt="Unnati Profile" 
+                  className="w-full h-full object-contain object-left scale-[1.0] transition-transform duration-700 group-hover:scale-[1.05]" 
+                />
+              </div>
+            </div>
+
+            {/* Right Column: Hero Content */}
+            <div className="w-[65%] h-full flex flex-col justify-center pl-8 pr-16 relative overflow-hidden">
               
-              <div className="text-indigo-400 font-mono text-3xl mb-6 tracking-widest uppercase text-opacity-90 z-10">
+              <div className="text-indigo-600 font-mono text-3xl mb-6 tracking-widest uppercase z-10">
                 <span className="inline-block mr-3 text-indigo-500/50">{">"}</span>
                 Hello World, I am
               </div>
               
-              <h1 className="text-[5.5rem] font-black text-white mb-8 tracking-tighter leading-none z-10 drop-shadow-xl">
+              <h1 className="text-[5.5rem] font-black text-slate-900 mb-8 tracking-tighter leading-none z-10">
                 Unnati Jadon
               </h1>
               
               {/* Typewriter text wrapper */}
-              <div className="text-5xl text-slate-200 font-bold h-[70px] mb-12 flex items-center z-10">
+              <div className="text-5xl text-slate-700 font-bold h-[70px] mb-12 flex items-center z-10">
                 I'm <span className="ml-4"><TypewriterText /></span>
               </div>
               
@@ -864,21 +790,9 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
                 <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-5 px-10 rounded-xl shadow-[0_0_30px_rgba(79,70,229,0.4)] transition-all hover:scale-105 active:scale-95 cursor-pointer text-lg tracking-wider uppercase">
                   View My Projects
                 </button>
-                <button className="bg-slate-800/50 backdrop-blur-sm hover:bg-slate-800 text-white font-bold py-5 px-10 rounded-xl border border-slate-600 hover:border-slate-400 transition-all cursor-pointer text-lg tracking-wider uppercase">
+                <button className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-5 px-10 rounded-xl border border-slate-300 hover:border-slate-400 transition-all cursor-pointer text-lg tracking-wider uppercase">
                   Contact Me
                 </button>
-              </div>
-            </div>
-
-            {/* Right Column: Photo / Profile */}
-            <div className="w-[35%] h-full flex flex-col relative overflow-hidden bg-slate-900">
-              {/* The Photo */}
-              <div className="w-full h-full absolute inset-0 group cursor-pointer bg-slate-900 overflow-hidden">
-                <img 
-                  src="/profile.png" 
-                  alt="Unnati Profile" 
-                  className="w-full h-full object-cover object-[95%_5%] scale-110 transition-transform duration-700 group-hover:scale-125 group-hover:translate-x-2" 
-                />
               </div>
             </div>
           </div>
@@ -895,7 +809,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
 
       <group
         ref={chairRef}
-        position={[-0.35, -0.35, 0.65]}
+        position={[-0.75, -0.35, 0.65]}
         rotation={[0, 0.4, 0]}
         scale={0.78}
         onPointerDown={(e) => {
@@ -1273,12 +1187,12 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
       >
         {/* Screen Frame */}
         <mesh>
-          <boxGeometry args={[1.3, 0.9, 0.02]} />
+          <boxGeometry args={[1.7, 1.15, 0.02]} />
           <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.2} />
         </mesh>
         {/* Screen Bezel */}
         <mesh position={[0, 0, 0.012]}>
-          <boxGeometry args={[1.27, 0.87, 0.005]} />
+          <boxGeometry args={[1.66, 1.11, 0.005]} />
           <meshStandardMaterial color="#020305" roughness={0.08} metalness={0.9} />
         </mesh>
         {/* Left Screen HTML Content - Light Glassmorphic Dashboard */}
@@ -1289,69 +1203,88 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           position={[0, 0, 0.018]}
           pointerEvents={sector === 'left' ? 'auto' : 'none'}
           style={{
-            width: '800px',
-            height: '560px',
-            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(241, 245, 249, 0.97) 100%)',
-            color: '#1e293b',
-            fontFamily: '"Outfit", "Inter", sans-serif',
-            padding: '28px',
+            width: '1000px',
+            height: '660px',
+            background: 'transparent',
+            color: '#39ff14',
+            fontFamily: '"Courier New", Courier, monospace',
+            padding: '0px',
             boxSizing: 'border-box',
-            border: '1px solid rgba(99, 102, 241, 0.18)',
-            borderRadius: '12px',
             opacity: sector === 'left' ? 1.0 : 0.4,
-            transition: 'opacity 0.4s ease',
-            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.06)'
+            transition: 'opacity 0.4s ease'
           }}
         >
-          <div className="flex flex-col h-full justify-between">
-            <div>
-              <div className="flex items-center justify-between border-b border-slate-200 pb-2.5 mb-4">
-                <span className="font-mono text-xs tracking-wider text-indigo-600 font-bold">SECTOR_01 // BIO_AND_SKILLS</span>
-                <span className="font-mono text-[10px] text-slate-400">OS_STABLE</span>
+          <div className="flex flex-col h-full w-full bg-[#0a0a0a] rounded-lg overflow-hidden border border-[#39ff14]/30 shadow-[0_15px_40px_rgba(0,0,0,0.85),0_0_30px_rgba(57,255,20,0.12)]">
+            {/* MacBook Title Bar */}
+            <div className="flex items-center justify-between bg-[#1a1a1a] border-b border-[#2d2d2d] px-4 py-2.5 select-none">
+              {/* Window Controls */}
+              <div className="flex items-center gap-1.5 w-1/4">
+                <div className="w-3 h-3 rounded-full bg-[#ff5f56] opacity-90"></div>
+                <div className="w-3 h-3 rounded-full bg-[#ffbd2e] opacity-90"></div>
+                <div className="w-3 h-3 rounded-full bg-[#27c93f] opacity-90"></div>
               </div>
-
-              <h2 className="text-xl font-black tracking-tight text-slate-800 mb-2 font-sans">About Me</h2>
-              <p className="text-slate-600 text-xs leading-relaxed mb-5 font-sans opacity-95">
-                I merge engineering and creative design to build digital environments that wow at first glance. Working at the intersection of aesthetics and physics, I focus on premium, interactive web applications.
-              </p>
-
-              <h3 className="text-xs font-bold tracking-wider text-indigo-600 uppercase mb-3">Core Stack & Proficiency</h3>
-              <div className="space-y-3.5">
-                {/* Skill 1 */}
-                <div>
-                  <div className="flex justify-between text-xs mb-1 font-bold text-slate-700">
-                    <span>WebGL & React Three Fiber (3D)</span>
-                    <span className="text-indigo-600">95%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-slate-200 rounded overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded" style={{ width: '95%' }}></div>
-                  </div>
-                </div>
-                {/* Skill 2 */}
-                <div>
-                  <div className="flex justify-between text-xs mb-1 font-bold text-slate-700">
-                    <span>React & NextJS (Frontend)</span>
-                    <span className="text-indigo-600">90%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-slate-200 rounded overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded" style={{ width: '90%' }}></div>
-                  </div>
-                </div>
-                {/* Skill 3 */}
-                <div>
-                  <div className="flex justify-between text-xs mb-1 font-bold text-slate-700">
-                    <span>GSAP & Motion (Animation)</span>
-                    <span className="text-indigo-600">88%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-slate-200 rounded overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded" style={{ width: '88%' }}></div>
-                  </div>
-                </div>
+              {/* Terminal Title */}
+              <div className="text-[11px] font-sans font-medium text-slate-400 text-center w-2/4 tracking-wide">
+                dev_journey.log — zsh — 80×24
               </div>
+              {/* Right Spacer */}
+              <div className="w-1/4"></div>
             </div>
 
-            <div className="text-[10px] text-slate-400 font-mono tracking-wider">
-              _Click Screen or Desk to Return to Center_
+            {/* Terminal Body */}
+            <div className="flex-1 p-[36px] flex flex-col justify-between overflow-hidden">
+              <div>
+                <div className="flex items-center justify-between border-b border-[#39ff14]/30 pb-1.5 mb-3">
+                  <span className="font-mono text-xs tracking-wider text-[#39ff14] font-bold">[ SECTOR_01 // DEV_JOURNEY ]</span>
+                  <span className="font-mono text-[10px] text-[#39ff14]/70 animate-pulse">STATUS: ONLINE_</span>
+                </div>
+
+                <div className="flex items-baseline gap-3 mb-5">
+                  <h2 className="text-xl font-bold tracking-tight text-[#39ff14] font-mono">&gt; DEV_JOURNEY</h2>
+                  <span className="text-[#39ff14]/60 text-[11px] font-mono">$ cat dev_journey.log</span>
+                </div>
+
+                {/* Horizontal layout for Content */}
+                <div className="flex flex-row gap-6 mb-2">
+                  {/* Left Column: Image & CTA */}
+                  <div className="w-[55%] flex flex-col gap-4">
+                    <div className="w-full h-[225px] flex items-center justify-center border border-[#39ff14]/30 bg-[#0a0a0a]/50 p-3 rounded overflow-hidden">
+                      {/* GitHub Contributions Chart */}
+                      <img 
+                        src="/github-profile.png" 
+                        alt="Unnati GitHub Contributions" 
+                        className="w-full h-auto object-contain filter brightness-110 contrast-125" 
+                      />
+                    </div>
+                    
+                    <a
+                      href="https://github.com/Unnati1007"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center justify-center gap-2 p-3 border border-[#39ff14] bg-[#39ff14] text-[#0a0a0a] shadow-[0_0_15px_rgba(57,255,20,0.4)] font-bold transition-all hover:scale-[1.01] duration-200 select-none cursor-pointer rounded"
+                    >
+                      <span className="text-sm font-mono tracking-wide">&gt; Check Out My GitHub Profile</span>
+                    </a>
+                  </div>
+
+                  {/* Right Column: Narrative */}
+                  <div className="w-[45%] font-mono text-[10.5px] text-[#39ff14]/55 leading-[1.7] flex flex-col justify-center border border-[#39ff14]/20 p-4 bg-[#0a0a0a]/50 rounded-lg">
+                    <div className="text-[#39ff14]/75 mb-3 font-bold text-[11px]"># dev_journey.log</div>
+                    <div className="mb-2"># Started with the classic "Guess the Number" game —<br/># a few lines of code, a lot of confusion, zero design sense.</div>
+                    
+                    <div className="mb-2"># From there it just kept growing — small scripts turned into<br/># actual projects, projects turned into apps people could use.</div>
+                    
+                    <div className="mb-2"># Somewhere along the way, building things stopped feeling<br/># like an assignment and started feeling like the fun part.</div>
+                    
+                    <div># Still shipping, still breaking things, still figuring it out.<br/># Check out my GitHub to see how it's evolved.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-[10px] text-[#39ff14]/50 font-mono tracking-wider pt-3 mt-4 border-t border-[#39ff14]/10 text-center">
+                _Click Screen or Desk to Return to Center_
+              </div>
             </div>
           </div>
         </Html>
@@ -1658,7 +1591,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
       {/* ========================================================================= */}
 
       {/* Scaled up and shifted on the table */}
-      <group position={[0, -0.175, -0.12]} scale={1.25}>
+      <group position={[0, -0.175, -0.12]} scale={1.45}>
         {/* Extended Desk Mousepad (Deep Black) */}
         <mesh position={[0.05, 0.002, 0]}>
           <boxGeometry args={[1.0, 0.004, 0.35]} />
@@ -1797,7 +1730,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         {/* Paper Pages (slightly recessed) */}
         <mesh position={[0.002, 0.009, 0]}>
           <boxGeometry args={[0.174, 0.012, 0.156]} />
-          <meshBasicMaterial color="#fdfbf7" />
+          <meshStandardMaterial color="#e5e5e4" roughness={0.9} />
         </mesh>
         {/* Top Cover */}
         <mesh position={[0, 0.0165, 0]}>
@@ -1932,7 +1865,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         {/* Body Group (Chassis wrapper with proper rotation, scale, and positions matching Ferrari.jsx) */}
         <group position={[0, 0.676, 0]} rotation={[-Math.PI / 2, 0, -Math.PI / 2]} scale={[1.15, 1.1, 1]}>
           <mesh geometry={nodes.trim.geometry} material={materials.Leather_red} material-color="#111111" position={[-0.379, -0.004, -0.016]} />
-          <mesh geometry={nodes.lights_red.geometry} material={materials.Taillight_Glass} position={[0.913, -0.004, -0.006]} />
+          <mesh geometry={nodes.lights_red.geometry} material={toyTaillightMaterial || materials.Taillight_Glass} position={[0.913, -0.004, -0.006]} />
           <mesh geometry={nodes.plastic_gray.geometry} material={materials.plastic_gray} position={[0.108, -0.001, -0.029]} />
           <mesh geometry={nodes.metal.geometry} material={materials.metal_gray} position={[0.218, -0.005, -0.002]} />
           <mesh geometry={nodes.lights.geometry} material={materials.Projector_Glass} position={[-1.845, -0.002, -0.067]} />
@@ -1945,7 +1878,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           <mesh geometry={nodes.carpet.geometry} material={materials.Carpet} position={[-0.281, -0.004, -0.235]} />
           <mesh geometry={nodes.carbon_fibre_trim.geometry} material={materials.Carbon_Fiber} position={[-0.177, -0.002, -0.04]} />
           <mesh geometry={nodes.carbon_fibre.geometry} material={materials.Carbon_Fiber} position={[-0.438, -0.346, 0.118]} />
-          <mesh geometry={nodes.brakes.geometry} material={materials.Taillight_Glass} position={[1.989, -0.004, 0.2]} />
+          <mesh geometry={nodes.brakes.geometry} material={toyTaillightMaterial || materials.Taillight_Glass} position={[1.989, -0.004, 0.2]} />
           <mesh geometry={nodes.interior_dark.geometry} material={materials.Interior_light} position={[0.003, 0, 0.011]} />
           <mesh geometry={nodes.body.geometry} material={toyBodyMaterial || materials.Body_Color} position={[-0.005, 0, 0.022]} />
           <mesh geometry={nodes.blue.geometry} material={materials._0098_DodgerBlue} position={[-0.35, -0.435, 0.068]} />
