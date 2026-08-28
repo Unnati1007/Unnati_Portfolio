@@ -37,7 +37,16 @@ const Experience = () => {
           {experiences.map((exp, index) => (
             <div key={index} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
               <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white/10 bg-black text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white group-hover:border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-colors duration-300">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+                <svg className="w-5 h-5 fill-none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <line x1="12" y1="2" x2="12" y2="22" />
+                  <path d="m20 16-4-4 4-4" />
+                  <path d="m4 8 4 4-4 4" />
+                  <path d="m16 20-4-4-4 4" />
+                  <path d="m8 4 4 4 4-4" />
+                  <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                  <line x1="19.07" y1="4.93" x2="4.93" y2="19.07" />
+                </svg>
               </div>
               
               <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-[rgba(15,20,30,0.6)] p-6 rounded-2xl border border-white/5 hover:border-indigo-500/50 transition-all duration-300">
