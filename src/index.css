@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -71,12 +74,23 @@ body, button, input, select, textarea, .font-sans {
   font-family: 'Poppins', sans-serif !important;
 }
 
+.font-pacifico {
+  font-family: 'Pacifico', cursive !important;
+}
+
+.font-quicksand {
+  font-family: 'Quicksand', sans-serif !important;
+}
+
 /* Light mode portfolio overrides to keep it sweet & professional */
 .light-mode-portfolio {
   background-color: #faf8f5 !important;
-  background-image: radial-gradient(at 0% 0%, rgba(243, 232, 255, 0.4) 0px, transparent 50%),
-                    radial-gradient(at 100% 100%, rgba(224, 242, 254, 0.4) 0px, transparent 50%) !important;
+  background-image: radial-gradient(at 0% 0%, rgba(243, 232, 255, 0.3) 0px, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(224, 242, 254, 0.3) 0px, transparent 50%),
+                    url('/textures/cream_paper.jpg') !important;
+  background-repeat: repeat !important;
   color: #1e293b !important;
+  transition: background-color 1.2s ease, color 1.2s ease, border-color 1.2s ease, box-shadow 1.2s ease !important;
 }
 
 .light-mode-portfolio h1,

@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo, useLayoutEffect, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Html, useGLTF, Text, RoundedBox } from '@react-three/drei'
+import { Html, useGLTF, Text, RoundedBox, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import gsap from 'gsap'
 
@@ -191,6 +191,70 @@ function WallSwitch({ position, scale = 1, isDarkMode, setIsDarkMode }) {
 export default function TechRoom({ sector, setSector, activeProject, setActiveProject, isDarkMode, setIsDarkMode }) {
   // Load Ferrari GLTF for the wireframe car hologram AND the miniature toy Ferrari
   const { nodes, materials } = useGLTF('/models/ferrari.glb')
+  const wallTexture = useTexture('/textures/cream_paper.jpg')
+  useMemo(() => {
+    if (wallTexture) {
+      wallTexture.wrapS = THREE.RepeatWrapping
+      wallTexture.wrapT = THREE.RepeatWrapping
+      wallTexture.repeat.set(2, 2)
+    }
+  }, [wallTexture])
+
+  // Custom shared materials with smooth transition support
+  const wallMat = useMemo(() => new THREE.MeshBasicMaterial({ 
+    map: wallTexture,
+    color: new THREE.Color(isDarkMode ? '#111827' : '#ffffff') 
+  }), [wallTexture])
+  const skyMat = useMemo(() => new THREE.MeshBasicMaterial({
+    color: new THREE.Color(isDarkMode ? '#05070f' : '#bae6fd')
+  }), [])
+  const frameMat = useMemo(() => new THREE.MeshBasicMaterial({
+    color: new THREE.Color(isDarkMode ? '#1f2937' : '#faf8f5')
+  }), [])
+  const sillMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: new THREE.Color(isDarkMode ? '#2a3342' : '#faf8f5'),
+    roughness: 0.5
+  }), [])
+
+  const crescentShape = useMemo(() => {
+    const shape = new THREE.Shape()
+    shape.moveTo(0, 0.09)
+    shape.absarc(0, 0, 0.09, Math.PI / 2, -Math.PI / 2, true)
+    shape.quadraticCurveTo(-0.035, 0, 0, 0.09)
+    return shape
+  }, [])
+
+  useEffect(() => {
+    // Smoothly animate materials between light and dark mode colors
+    gsap.to(wallMat.color, {
+      r: isDarkMode ? 0.0667 : 1.0,
+      g: isDarkMode ? 0.0941 : 1.0,
+      b: isDarkMode ? 0.1529 : 1.0,
+      duration: 1.2,
+      ease: "power2.out"
+    })
+    gsap.to(skyMat.color, {
+      r: isDarkMode ? 0.0196 : 0.7294,
+      g: isDarkMode ? 0.0275 : 0.9020,
+      b: isDarkMode ? 0.0588 : 0.9922,
+      duration: 1.2,
+      ease: "power2.out"
+    })
+    gsap.to(frameMat.color, {
+      r: isDarkMode ? 0.1216 : 0.9804,
+      g: isDarkMode ? 0.1608 : 0.9725,
+      b: isDarkMode ? 0.2157 : 0.9608,
+      duration: 1.2,
+      ease: "power2.out"
+    })
+    gsap.to(sillMat.color, {
+      r: isDarkMode ? 0.1647 : 0.9804,
+      g: isDarkMode ? 0.2000 : 0.9725,
+      b: isDarkMode ? 0.2588 : 0.9608,
+      duration: 1.2,
+      ease: "power2.out"
+    })
+  }, [isDarkMode, wallMat, skyMat, frameMat, sillMat])
 
   const levitatingHeadphoneRef = useRef()
   const pcFansRef = useRef()
@@ -343,28 +407,24 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
       {/* ========================================================================= */}
 
       {/* Back Wall Left Part */}
-      <mesh position={[-3.125, 1.2, -1.8]} onClick={(e) => handleWallClick('center', e)}>
+      <mesh position={[-3.125, 1.2, -1.8]} onClick={(e) => handleWallClick('center', e)} material={wallMat}>
         <boxGeometry args={[1.75, 5, 0.05]} />
-        <meshBasicMaterial color={isDarkMode ? '#111827' : '#faf8f5'} />
       </mesh>
 
       {/* Back Wall Right Part */}
-      <mesh position={[1.525, 1.2, -1.8]} onClick={(e) => handleWallClick('center', e)}>
+      <mesh position={[1.525, 1.2, -1.8]} onClick={(e) => handleWallClick('center', e)} material={wallMat}>
         <boxGeometry args={[4.95, 5, 0.05]} />
-        <meshBasicMaterial color={isDarkMode ? '#111827' : '#faf8f5'} />
       </mesh>
 
 
       {/* Back Wall Bottom Part (Under window) */}
-      <mesh position={[-1.6, -0.4, -1.8]} onClick={(e) => handleWallClick('center', e)}>
+      <mesh position={[-1.6, -0.4, -1.8]} onClick={(e) => handleWallClick('center', e)} material={wallMat}>
         <boxGeometry args={[1.3, 1.8, 0.05]} />
-        <meshBasicMaterial color={isDarkMode ? '#111827' : '#faf8f5'} />
       </mesh>
 
       {/* Back Wall Top Part (Above window) */}
-      <mesh position={[-1.6, 2.54, -1.8]} onClick={(e) => handleWallClick('center', e)}>
+      <mesh position={[-1.6, 2.54, -1.8]} onClick={(e) => handleWallClick('center', e)} material={wallMat}>
         <boxGeometry args={[1.3, 1.6, 0.05]} />
-        <meshBasicMaterial color={isDarkMode ? '#111827' : '#faf8f5'} />
       </mesh>
 
       {/* Interactive Wall Light Switch (Right side back wall) */}
@@ -375,10 +435,11 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
       {/* ========================================================================= */}
       <group position={[-1.6, 0, 0]}>
         {/* Window Frame Borders (Clean White Wood) */}
-        <mesh position={[0, 1.72, -1.77]}><boxGeometry args={[1.3, 0.04, 0.06]} /><meshBasicMaterial color={isDarkMode ? '#1f2937' : '#faf8f5'} /></mesh>
-        <mesh position={[0, 0.5, -1.77]}><boxGeometry args={[1.3, 0.04, 0.08]} /><meshBasicMaterial color={isDarkMode ? '#1f2937' : '#faf8f5'} /></mesh>
-        <mesh position={[-0.63, 1.11, -1.77]}><boxGeometry args={[0.04, 1.26, 0.04]} /><meshBasicMaterial color={isDarkMode ? '#1f2937' : '#faf8f5'} /></mesh>
-        <mesh position={[0.63, 1.11, -1.77]}><boxGeometry args={[0.04, 1.26, 0.04]} /><meshBasicMaterial color={isDarkMode ? '#1f2937' : '#faf8f5'} /></mesh>
+        <mesh position={[0, 1.72, -1.77]} material={frameMat}><boxGeometry args={[1.3, 0.04, 0.06]} /></mesh>
+        {/* Protruding Cozy Wooden Window Sill */}
+        <mesh position={[0, 0.48, -1.73]} material={sillMat}><boxGeometry args={[1.4, 0.045, 0.16]} /></mesh>
+        <mesh position={[-0.63, 1.11, -1.77]} material={frameMat}><boxGeometry args={[0.04, 1.26, 0.04]} /></mesh>
+        <mesh position={[0.63, 1.11, -1.77]} material={frameMat}><boxGeometry args={[0.04, 1.26, 0.04]} /></mesh>
 
         {/* Single Clean Glass Pane (No grid dividers) */}
         <mesh position={[0, 1.11, -1.78]}>
@@ -395,44 +456,59 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         <mesh position={[-0.9, 1.76, -1.74]}><sphereGeometry args={[0.045, 16, 16]} /><meshStandardMaterial color="#fbbf24" metalness={0.8} roughness={0.2} /></mesh>
         <mesh position={[0.9, 1.76, -1.74]}><sphereGeometry args={[0.045, 16, 16]} /><meshStandardMaterial color="#fbbf24" metalness={0.8} roughness={0.2} /></mesh>
 
-        {/* Curtains (Navy Blue Pleated Fabric) */}
+        {/* Curtains (Navy Blue Pleated/Gathered Fabric) */}
         {/* Left Curtain */}
-        <group position={[-0.75, 1.06, -1.73]}>
-          <mesh position={[-0.12, 0, 0]}><cylinderGeometry args={[0.05, 0.05, 1.4, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
-          <mesh position={[-0.04, 0, 0.03]}><cylinderGeometry args={[0.06, 0.06, 1.4, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
-          <mesh position={[0.04, 0, 0]}><cylinderGeometry args={[0.05, 0.05, 1.4, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
-          <mesh position={[0.1, 0, 0.02]}><cylinderGeometry args={[0.04, 0.04, 1.4, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+        <group position={[-0.75, 1.14, -1.73]}>
+          {/* Upper Gathered Part */}
+          <group position={[0, 0.31, 0]}>
+            <mesh position={[-0.12, 0, 0]}><cylinderGeometry args={[0.045, 0.025, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+            <mesh position={[-0.04, 0, 0.03]}><cylinderGeometry args={[0.055, 0.03, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+            <mesh position={[0.04, 0, 0]}><cylinderGeometry args={[0.045, 0.025, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+            <mesh position={[0.1, 0, 0.02]}><cylinderGeometry args={[0.035, 0.02, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+          </group>
+          {/* Lower Swept Part */}
+          <group position={[0, -0.31, 0]}>
+            <mesh position={[-0.12, 0, 0]}><cylinderGeometry args={[0.025, 0.06, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+            <mesh position={[-0.04, 0, 0.03]}><cylinderGeometry args={[0.03, 0.075, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+            <mesh position={[0.04, 0, 0]}><cylinderGeometry args={[0.025, 0.06, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+            <mesh position={[0.1, 0, 0.02]}><cylinderGeometry args={[0.02, 0.05, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+          </group>
+          {/* Golden Tie-Back Band */}
+          <mesh position={[-0.01, 0, 0.02]}><boxGeometry args={[0.26, 0.035, 0.06]} /><meshStandardMaterial color="#fbbf24" metalness={0.8} roughness={0.2} /></mesh>
         </group>
         {/* Right Curtain */}
-        <group position={[0.75, 1.06, -1.73]}>
-          <mesh position={[-0.1, 0, 0.02]}><cylinderGeometry args={[0.04, 0.04, 1.4, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
-          <mesh position={[-0.04, 0, 0]}><cylinderGeometry args={[0.05, 0.05, 1.4, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
-          <mesh position={[0.04, 0, 0.03]}><cylinderGeometry args={[0.06, 0.06, 1.4, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
-          <mesh position={[0.12, 0, 0]}><cylinderGeometry args={[0.05, 0.05, 1.4, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+        <group position={[0.75, 1.14, -1.73]}>
+          {/* Upper Gathered Part */}
+          <group position={[0, 0.31, 0]}>
+            <mesh position={[-0.1, 0, 0.02]}><cylinderGeometry args={[0.035, 0.02, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+            <mesh position={[-0.04, 0, 0]}><cylinderGeometry args={[0.045, 0.025, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+            <mesh position={[0.04, 0, 0.03]}><cylinderGeometry args={[0.055, 0.03, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+            <mesh position={[0.12, 0, 0]}><cylinderGeometry args={[0.045, 0.025, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+          </group>
+          {/* Lower Swept Part */}
+          <group position={[0, -0.31, 0]}>
+            <mesh position={[-0.1, 0, 0.02]}><cylinderGeometry args={[0.02, 0.05, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+            <mesh position={[-0.04, 0, 0]}><cylinderGeometry args={[0.025, 0.06, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+            <mesh position={[0.04, 0, 0.03]}><cylinderGeometry args={[0.03, 0.075, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+            <mesh position={[0.12, 0, 0]}><cylinderGeometry args={[0.025, 0.06, 0.62, 16]} /><meshStandardMaterial color="#1e3a8a" roughness={0.9} /></mesh>
+          </group>
+          {/* Golden Tie-Back Band */}
+          <mesh position={[0.01, 0, 0.02]}><boxGeometry args={[0.26, 0.035, 0.06]} /><meshStandardMaterial color="#fbbf24" metalness={0.8} roughness={0.2} /></mesh>
         </group>
 
         {/* Background Sky Plane */}
-        <mesh position={[0, 1.3, -2.5]}>
+        <mesh position={[0, 1.3, -2.5]} material={skyMat}>
           <planeGeometry args={[4.0, 3.5]} />
-          {/* Using a softer, hazy blue (#bae6fd) for daylight to match reference */}
-          <meshBasicMaterial color={isDarkMode ? "#05070f" : "#bae6fd"} />
         </mesh>
 
         {/* Dynamic Day/Night Scenery behind the glass */}
         {isDarkMode ? (
           <group position={[0, 0, 0]}>
-            {/* Crescent Moon (Moved to Left Side, Tilted Up) */}
-            <group position={[-0.35, 1.6, -2.4]} rotation={[0, 0, Math.PI / 6]}>
-              <mesh>
-                <circleGeometry args={[0.09, 64]} />
-                <meshBasicMaterial color="#fef08a" />
-              </mesh>
-              {/* Dark cutout positioned on the right to make tips point right/up */}
-              <mesh position={[0.035, 0.0, 0.001]}>
-                <circleGeometry args={[0.08, 64]} />
-                <meshBasicMaterial color="#05070f" />
-              </mesh>
-            </group>
+            {/* Crescent Moon (Using clean custom shape geometry) */}
+            <mesh position={[-0.35, 1.6, -2.4]} rotation={[0, 0, Math.PI / 6]}>
+              <shapeGeometry args={[crescentShape]} />
+              <meshBasicMaterial color="#fef08a" />
+            </mesh>
             
             {/* Twinkling Stars (Significantly larger and spread out to all corners of the window) */}
             {/* Top section */}
@@ -517,9 +593,9 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         onClick={(e) => handleWallClick('left', e)}
         onPointerOver={(sector === 'center') ? handlePointerOver : undefined}
         onPointerOut={handlePointerOut}
+        material={wallMat}
       >
         <boxGeometry args={[6, 5, 0.05]} />
-        <meshBasicMaterial color={isDarkMode ? '#111827' : '#faf8f5'} />
       </mesh>
 
       {/* Right Wall */}
@@ -529,9 +605,9 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         onClick={(e) => handleWallClick('right', e)}
         onPointerOver={(sector === 'center') ? handlePointerOver : undefined}
         onPointerOut={handlePointerOut}
+        material={wallMat}
       >
         <boxGeometry args={[6, 5, 0.05]} />
-        <meshBasicMaterial color={isDarkMode ? '#111827' : '#faf8f5'} />
       </mesh>
 
       {/* Floor (Light Brown / Natural Wood Texture Tone) */}
@@ -561,10 +637,9 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         onPointerOut={handlePointerOut}
       >
         {/* Desk Tabletop (Walnut Wood Finish - raised to y = -0.2 and pushed back to z = -0.2) */}
-        <mesh position={[0, -0.2, -0.2]}>
-          <boxGeometry args={[3.4, 0.05, 1.2]} />
+        <RoundedBox position={[0, -0.2, -0.2]} args={[3.4, 0.05, 1.2]} radius={0.015} smoothness={4}>
           <meshStandardMaterial color={isDarkMode ? "#3d2514" : "#5a3a22"} roughness={0.7} metalness={0.05} />
-        </mesh>
+        </RoundedBox>
 
         {/* Left Desk Leg (Black Metal Loop) */}
         <group position={[-1.6, -0.5275, -0.2]}>
@@ -634,10 +709,9 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         onPointerOut={handlePointerOut}
       >
         {/* Wooden Monitor Riser (Sitting flush on the desk to prevent floating) */}
-        <mesh position={[0, -0.735, -0.05]}>
-          <boxGeometry args={[3.2, 0.03, 0.4]} />
+        <RoundedBox position={[0, -0.735, -0.05]} args={[3.2, 0.03, 0.4]} radius={0.008} smoothness={4}>
           <meshStandardMaterial color={isDarkMode ? "#3d2514" : "#5a3a22"} roughness={0.7} metalness={0.05} />
-        </mesh>
+        </RoundedBox>
         {/* Riser Legs */}
         <mesh position={[-1.4, -0.765, -0.05]}>
           <boxGeometry args={[0.04, 0.04, 0.35]} />
@@ -700,47 +774,29 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         </mesh>
 
         {/* Ultrawide Back Housing (Solid dark gray plastic) */}
-        <mesh position={[0, -0.175, 0.0]}>
-          <boxGeometry args={[2.14, 0.76, 0.04]} />
+        {/* Ultrawide Back Housing (Rounded premium casing) */}
+        <RoundedBox position={[0, -0.175, 0.0]} args={[2.14, 0.76, 0.04]} radius={0.04} smoothness={4}>
           <meshStandardMaterial color="#111111" metalness={0.8} roughness={0.3} />
-        </mesh>
+        </RoundedBox>
 
-        {/* Top Bezel Frame */}
-        <mesh position={[0, 0.19, 0.024]}>
-          <boxGeometry args={[2.14, 0.03, 0.012]} />
+        {/* Front Bezel Frame (Sleek rounded bezel border) */}
+        <RoundedBox position={[0, -0.175, 0.02]} args={[2.14, 0.76, 0.012]} radius={0.04} smoothness={4}>
           <meshStandardMaterial color="#0c0c0c" metalness={0.9} roughness={0.3} />
-        </mesh>
+        </RoundedBox>
 
-        {/* Bottom Bezel Chin (Thicker) */}
-        <mesh position={[0, -0.54, 0.024]}>
-          <boxGeometry args={[2.14, 0.05, 0.012]} />
-          <meshStandardMaterial color="#0c0c0c" metalness={0.9} roughness={0.3} />
-        </mesh>
-
-        {/* Left Bezel Frame */}
-        <mesh position={[-1.055, -0.175, 0.024]}>
-          <boxGeometry args={[0.03, 0.70, 0.012]} />
-          <meshStandardMaterial color="#0c0c0c" metalness={0.9} roughness={0.3} />
-        </mesh>
-
-        {/* Right Bezel Frame */}
-        <mesh position={[1.055, -0.175, 0.024]}>
-          <boxGeometry args={[0.03, 0.70, 0.012]} />
-          <meshStandardMaterial color="#0c0c0c" metalness={0.9} roughness={0.3} />
-        </mesh>
-
-        {/* Screen Glass (The actual display area inside the bezels) */}
-        <mesh position={[0, -0.175, 0.022]}>
-          <boxGeometry args={[2.08, 0.70, 0.005]} />
+        {/* Screen Glass (The actual display area inside the bezels - rounded to match HTML border-radius) */}
+        {/*
+        <RoundedBox position={[0, -0.175, 0.012]} args={[2.10, 0.72, 0.005]} radius={0.025} smoothness={4}>
           <meshStandardMaterial color="#020305" roughness={0.08} metalness={0.9} />
-        </mesh>
+        </RoundedBox>
+        */}
 
         {/* Center Screen HTML Landing Page Content (Hero Section) */}
         <Html
           transform
           occlude="blending"
           distanceFactor={0.58}
-          position={[0, -0.175, 0.026]}
+          position={[0, -0.175, 0.03]}
           pointerEvents={sector === 'center' ? 'auto' : 'none'}
           style={{
             width: '1440px',
@@ -810,7 +866,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
       <group
         ref={chairRef}
         position={[-0.75, -0.35, 0.65]}
-        rotation={[0, 0.4, 0]}
+        rotation={[0, 1.8, 0]}
         scale={0.78}
         onPointerDown={(e) => {
           e.stopPropagation()
@@ -907,8 +963,8 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           </mesh>
         </group>
 
-        {/* Backrest (Black Frame, Dark Mesh, Silver Metallic Accents) */}
-        <group position={[0, 0.35, -0.13]} rotation={[0.15, 0, 0]}>
+        {/* Backrest (Black Frame, Dark Mesh, Silver Metallic Accents - Ergonomically Inclined) */}
+        <group position={[0, 0.35, -0.15]} rotation={[-0.12, 0, 0]}>
           {/* Ergonomic Shaped Lower Back (Lumbar) */}
           <group position={[0, -0.12, 0.02]} rotation={[0.1, 0, 0]}>
             <RoundedBox position={[0, 0, -0.02]} args={[0.42, 0.28, 0.04]} radius={0.03} smoothness={4}>
@@ -929,42 +985,36 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
             </RoundedBox>
           </group>
 
-          {/* Silver Metallic V-Shape Support Structure on the back */}
+          {/* Silver Metallic V-Shape Support Structure on the back (Rounded for premium look) */}
           {/* Top horizontal silver bar */}
-          <mesh position={[0, 0.23, -0.025]}>
-            <boxGeometry args={[0.38, 0.03, 0.02]} />
+          <RoundedBox position={[0, 0.23, -0.025]} args={[0.38, 0.03, 0.02]} radius={0.008} smoothness={4}>
             <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.3} />
-          </mesh>
+          </RoundedBox>
           {/* Left Silver diagonal */}
-          <mesh position={[-0.15, -0.05, -0.025]} rotation={[0, 0, -0.5]}>
-            <boxGeometry args={[0.03, 0.5, 0.02]} />
+          <RoundedBox position={[-0.15, -0.05, -0.025]} args={[0.03, 0.5, 0.02]} rotation={[0, 0, -0.5]} radius={0.008} smoothness={4}>
             <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.3} />
-          </mesh>
+          </RoundedBox>
           {/* Right Silver diagonal */}
-          <mesh position={[0.15, -0.05, -0.025]} rotation={[0, 0, 0.5]}>
-            <boxGeometry args={[0.03, 0.5, 0.02]} />
+          <RoundedBox position={[0.15, -0.05, -0.025]} args={[0.03, 0.5, 0.02]} rotation={[0, 0, 0.5]} radius={0.008} smoothness={4}>
             <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.3} />
-          </mesh>
+          </RoundedBox>
           
           {/* Lower ribbed lumbar support (Black plastic) */}
-          <mesh position={[0, -0.18, 0.015]}>
-            <boxGeometry args={[0.25, 0.1, 0.02]} />
+          <RoundedBox position={[0, -0.18, 0.015]} args={[0.25, 0.1, 0.02]} radius={0.008} smoothness={4}>
             <meshStandardMaterial color="#050505" roughness={0.9} />
-          </mesh>
+          </RoundedBox>
         </group>
 
-        {/* Headrest (Mesh Panel with T-bracket) */}
-        <group position={[0, 0.68, -0.17]} rotation={[0.2, 0, 0]}>
+        {/* Headrest (Mesh Panel with T-bracket - Aligned with inclined back) */}
+        <group position={[0, 0.65, -0.22]} rotation={[-0.08, 0, 0]}>
           {/* Central thick black pillar going up to headrest */}
-          <mesh position={[0, -0.1, -0.03]}>
-            <boxGeometry args={[0.05, 0.15, 0.04]} />
+          <RoundedBox position={[0, -0.1, -0.03]} args={[0.05, 0.15, 0.04]} radius={0.01} smoothness={4}>
             <meshStandardMaterial color="#111111" roughness={0.8} />
-          </mesh>
+          </RoundedBox>
           {/* Horizontal crossbar of the T-bracket */}
-          <mesh position={[0, 0, -0.02]}>
-            <boxGeometry args={[0.3, 0.04, 0.03]} />
+          <RoundedBox position={[0, 0, -0.02]} args={[0.3, 0.04, 0.03]} radius={0.01} smoothness={4}>
             <meshStandardMaterial color="#111111" roughness={0.8} />
-          </mesh>
+          </RoundedBox>
           {/* Circular pivots on the ends of the crossbar */}
           <mesh position={[-0.14, 0, -0.01]} rotation={[Math.PI/2, 0, 0]}>
             <cylinderGeometry args={[0.025, 0.025, 0.04, 16]} />
@@ -975,16 +1025,14 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
             <meshStandardMaterial color="#050505" roughness={0.8} />
           </mesh>
           
-          {/* Headrest Black Frame */}
-          <mesh position={[0, 0.03, 0.01]}>
-            <boxGeometry args={[0.34, 0.16, 0.03]} />
+          {/* Headrest Black Frame (Rounded/Curved) */}
+          <RoundedBox position={[0, 0.03, 0.01]} args={[0.34, 0.16, 0.03]} radius={0.03} smoothness={4}>
             <meshStandardMaterial color="#111111" roughness={0.8} />
-          </mesh>
+          </RoundedBox>
           {/* Headrest Dark Grey Mesh */}
-          <mesh position={[0, 0.03, 0.026]}>
-            <boxGeometry args={[0.31, 0.13, 0.01]} />
+          <RoundedBox position={[0, 0.03, 0.026]} args={[0.31, 0.13, 0.01]} radius={0.02} smoothness={4}>
             <meshStandardMaterial color="#2d2d30" roughness={0.8} />
-          </mesh>
+          </RoundedBox>
         </group>
 
         {/* T-Style Armrests (Flat black pads on single posts) */}
@@ -1269,7 +1317,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
                   </div>
 
                   {/* Right Column: Narrative */}
-                  <div className="w-[45%] font-mono text-[10.5px] text-[#39ff14]/55 leading-[1.7] flex flex-col justify-center border border-[#39ff14]/20 p-4 bg-[#0a0a0a]/50 rounded-lg">
+                  <div className="w-[45%] font-mono text-[11px] text-[#39ff14] font-bold leading-[1.7] flex flex-col justify-center border border-[#39ff14]/20 p-4 bg-[#0a0a0a]/50 rounded-lg">
                     <div className="text-[#39ff14]/75 mb-3 font-bold text-[11px]"># dev_journey.log</div>
                     <div className="mb-2"># Started with the classic "Guess the Number" game —<br/># a few lines of code, a lot of confusion, zero design sense.</div>
                     
@@ -1384,7 +1432,7 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
                 {/* Bottom Section - Columns layout */}
                 <div className="flex flex-row gap-6 items-start mb-4">
                   {/* Bottom Left: Journey Narrative */}
-                  <div className="w-1/2 font-mono text-[9.5px] text-[#39ff14]/55 leading-normal border border-[#39ff14]/20 p-4 bg-[#0a0a0a]/50 rounded-lg h-[165px] overflow-hidden">
+                  <div className="w-1/2 font-mono text-[10.5px] text-[#39ff14] font-bold leading-normal border border-[#39ff14]/20 p-4 bg-[#0a0a0a]/50 rounded-lg h-[165px] overflow-hidden">
                     <div className="text-[#39ff14]/75 mb-2 font-mono">// JOURNEY_SUMMARY</div>
                     <div># Started DSA in 1st year, more out of curiosity than confidence.</div>
                     <div># Struggled a lot in the beginning brute force, wrong approaches,</div>

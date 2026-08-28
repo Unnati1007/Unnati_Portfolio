@@ -9,6 +9,7 @@ import Profiles from './components/sections/Profiles'
 import Resume from './components/sections/Resume'
 import Certificates from './components/sections/Certificates'
 import Contact from './components/sections/Contact'
+import ScrollCar from './components/3d/ScrollCar'
 import './index.css'
 
 function App() {
@@ -48,7 +49,7 @@ function App() {
 
   return (
     <div 
-      className="relative w-full bg-[#03050a] text-white font-sans overflow-x-hidden selection:bg-indigo-500/30 selection:text-indigo-200"
+      className="relative w-full bg-[#03050a] text-white font-sans overflow-x-clip selection:bg-indigo-500/30 selection:text-indigo-200"
       onDoubleClick={() => {
         if (!introComplete) {
           setIntroComplete(true)
@@ -149,7 +150,7 @@ function App() {
                   transition={{ delay: 2, duration: 1 }}
                   className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 pointer-events-none flex flex-col items-center gap-3 text-slate-950 drop-shadow-[0_2px_10px_rgba(255,255,255,0.8)]"
                  >
-                   <span className="text-lg uppercase tracking-[0.35em] font-black font-mono">Scroll to explore</span>
+                    <span className="text-sm font-bold font-quicksand uppercase tracking-[0.25em] text-slate-800">SCROLL TO EXPLORE</span>
                    <svg className="w-9 h-9 animate-bounce text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
                  </motion.div>
               )}
@@ -159,15 +160,25 @@ function App() {
       </div>
 
       {/* Main Content Sections - Rendered below Hero */}
-      <div className="relative z-10 bg-[#faf8f5] text-slate-800 light-mode-portfolio pt-10">
-        <About />
-        <Education />
-        <Experience />
-        <Profiles />
-        <Projects />
-        <Certificates />
-        <Resume />
-        <Contact />
+      <div id="portfolio-sections-wrapper" className="relative z-10 bg-[#faf8f5] text-slate-800 light-mode-portfolio pt-10">
+        <div className="max-w-6xl mx-auto relative px-4">
+          <div id="car-active-wrapper" className="relative">
+            {/* Sticky Side Column for Ferrari - tightly aligned to the left of section headers */}
+            <div className="absolute left-[-30px] xl:left-[-60px] top-0 bottom-0 w-[80px] xl:w-[110px] pointer-events-none hidden lg:block z-30">
+              <div className="sticky top-[10%] h-[80vh] w-full">
+                <ScrollCar isDarkMode={isDarkMode} />
+              </div>
+            </div>
+            <div id="scroll-about"><About /></div>
+            <div id="scroll-education"><Education /></div>
+            <div id="scroll-experience"><Experience /></div>
+            <div id="scroll-profiles"><Profiles /></div>
+            <div id="scroll-projects"><Projects /></div>
+            <div id="scroll-certificates"><Certificates /></div>
+            <div id="scroll-resume"><Resume /></div>
+            <div id="scroll-contact"><Contact /></div>
+          </div>
+        </div>
       </div>
     </div>
   )
