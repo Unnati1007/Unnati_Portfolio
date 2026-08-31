@@ -82,15 +82,29 @@ body, button, input, select, textarea, .font-sans {
   font-family: 'Quicksand', sans-serif !important;
 }
 
+/* Performance & GPU layer optimization */
+html {
+  scroll-behavior: smooth;
+}
+
+#scroll-about,
+#scroll-education,
+#scroll-experience,
+#scroll-profiles,
+#scroll-projects,
+#scroll-certificates,
+#scroll-resume {
+  contain: layout style;
+}
+
 /* Light mode portfolio overrides to keep it sweet & professional */
 .light-mode-portfolio {
   background-color: #faf8f5 !important;
   background-image: radial-gradient(at 0% 0%, rgba(243, 232, 255, 0.3) 0px, transparent 50%),
                     radial-gradient(at 100% 100%, rgba(224, 242, 254, 0.3) 0px, transparent 50%),
-                    url('/textures/cream_paper.jpg') !important;
+                    url('/textures/cream_paper.webp') !important;
   background-repeat: repeat !important;
   color: #1e293b !important;
-  transition: background-color 1.2s ease, color 1.2s ease, border-color 1.2s ease, box-shadow 1.2s ease !important;
 }
 
 .light-mode-portfolio h1,
@@ -107,79 +121,6 @@ body, button, input, select, textarea, .font-sans {
 .light-mode-portfolio .bg-clip-text {
   color: transparent !important;
   -webkit-text-fill-color: transparent !important;
-}
-
-/* Glass card styling updated for light mode */
-.light-mode-portfolio div[class*="bg-[rgba(15,20,30"],
-.light-mode-portfolio div[class*="bg-white/10"],
-.light-mode-portfolio a[class*="bg-[rgba(15,20,30"] {
-  background: #ffffff !important;
-  border-color: #e2e8f0 !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-/* Card Hover Effect */
-.light-mode-portfolio div[class*="bg-[rgba(15,20,30"]:hover,
-.light-mode-portfolio a[class*="bg-[rgba(15,20,30"]:hover {
-  transform: translateY(-6px);
-  border-color: #6366f1 !important; /* Indigo-500 */
-  box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1), 0 10px 10px -5px rgba(99, 102, 241, 0.04) !important;
-}
-
-/* Profiles Pill hover text */
-.light-mode-portfolio a[class*="bg-[rgba(15,20,30"]:hover span {
-  color: #4f46e5 !important;
-}
-
-/* Timeline center line for experience */
-.light-mode-portfolio div[class*="before:bg-gradient-to-b"]::before {
-  background-image: linear-gradient(to bottom, transparent, rgba(99, 102, 241, 0.3), transparent) !important;
-}
-
-/* Timeline circles */
-.light-mode-portfolio div[class*="bg-black"] {
-  background-color: #ffffff !important;
-  border-color: #cbd5e1 !important;
-  transition: all 0.3s ease !important;
-}
-
-/* Timeline experience hover effect */
-.light-mode-portfolio div[class*="group"]:hover div[class*="rounded-full"] {
-  transform: scale(1.2) !important;
-  background-color: #4f46e5 !important;
-  border-color: #4f46e5 !important;
-}
-
-/* Button links (like github-profiles, links, phone/mail) */
-.light-mode-portfolio a[class*="bg-white/10"],
-.light-mode-portfolio button[class*="bg-white/10"] {
-  background: #f1f5f9 !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.light-mode-portfolio a[class*="bg-white/10"]:hover,
-.light-mode-portfolio button[class*="bg-white/10"]:hover {
-  background: #e2e8f0 !important;
-  border-color: #cbd5e1 !important;
-}
-
-/* Resume download card/button */
-.light-mode-portfolio button[class*="bg-white"] {
-  background: #4f46e5 !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.3) !important;
-}
-.light-mode-portfolio button[class*="bg-white"]:hover {
-  background: #4338ca !important;
-}
-
-/* Projects tags border */
-.light-mode-portfolio span[class*="border-slate-700"] {
-  border-color: #cbd5e1 !important;
-  color: #64748b !important;
 }
  
 

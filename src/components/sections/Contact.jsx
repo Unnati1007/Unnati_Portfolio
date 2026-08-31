@@ -11,7 +11,7 @@ const Contact = () => {
         transition={{ duration: 0.8 }}
         className="bg-[rgba(15,20,30,0.6)] p-12 rounded-3xl border border-white/5 relative overflow-hidden"
       >
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1/2 bg-indigo-500/10 blur-[100px] pointer-events-none"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1/2 bg-blue-500/10 blur-[100px] pointer-events-none"></div>
         
         <h2 className="text-4xl font-bold mb-6 text-white relative z-10">Get In Touch</h2>
         <p className="text-slate-400 mb-10 max-w-lg mx-auto relative z-10">
@@ -21,7 +21,7 @@ const Contact = () => {
         <div className="flex flex-col md:flex-row justify-center gap-6 relative z-10">
           <a 
             href="mailto:unnatijadon1007@gmail.com" 
-            className="flex items-center justify-center gap-3 bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl font-bold transition-colors"
+            className="flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold transition-colors shadow-lg shadow-blue-500/20"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
             Email Me

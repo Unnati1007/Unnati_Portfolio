@@ -54,7 +54,7 @@ function TypewriterText() {
 
   return (
     <span className="inline-block min-w-[200px]">
-      <span className="text-indigo-600 font-bold">{words[index].substring(0, subIndex)}</span>
+      <span className="text-blue-600 font-bold">{words[index].substring(0, subIndex)}</span>
       <span className={`${blink ? 'opacity-100' : 'opacity-0'} transition-opacity text-slate-800`}>|</span>
     </span>
   );
@@ -165,8 +165,8 @@ function WallSwitch({ position, scale = 1, isDarkMode, setIsDarkMode }) {
         <mesh position={[0, 0.025, 0.0051]}>
           <circleGeometry args={[0.006, 16]} />
           <meshStandardMaterial 
-            color={isDarkMode ? "#a855f7" : "#f59e0b"} 
-            emissive={isDarkMode ? "#a855f7" : "#fbbf24"} 
+            color={isDarkMode ? "#38bdf8" : "#f59e0b"} 
+            emissive={isDarkMode ? "#38bdf8" : "#fbbf24"} 
             emissiveIntensity={hovered ? 2.5 : 1.5} 
             side={THREE.DoubleSide}
           />
@@ -218,9 +218,24 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
 
   const crescentShape = useMemo(() => {
     const shape = new THREE.Shape()
-    shape.moveTo(0, 0.09)
-    shape.absarc(0, 0, 0.09, Math.PI / 2, -Math.PI / 2, true)
-    shape.quadraticCurveTo(-0.035, 0, 0, 0.09)
+    const R = 0.11 // outer radius
+    const r = 0.095 // inner radius
+    const d = 0.045 // distance between centers
+
+    const xIntersect = (R * R - r * r + d * d) / (2 * d)
+    const yIntersect = Math.sqrt(Math.max(0, R * R - xIntersect * xIntersect))
+
+    const startAngleOuter = Math.atan2(yIntersect, xIntersect)
+    const endAngleOuter = Math.atan2(-yIntersect, xIntersect)
+
+    const startAngleInner = Math.atan2(-yIntersect, xIntersect - d)
+    const endAngleInner = Math.atan2(yIntersect, xIntersect - d)
+
+    // Outer circular arc (counter-clockwise)
+    shape.absarc(0, 0, R, startAngleOuter, endAngleOuter, false)
+    // Inner circular arc (clockwise)
+    shape.absarc(d, 0, r, startAngleInner, endAngleInner, true)
+
     return shape
   }, [])
 
@@ -504,10 +519,10 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         {/* Dynamic Day/Night Scenery behind the glass */}
         {isDarkMode ? (
           <group position={[0, 0, 0]}>
-            {/* Crescent Moon (Using clean custom shape geometry) */}
-            <mesh position={[-0.35, 1.6, -2.4]} rotation={[0, 0, Math.PI / 6]}>
-              <shapeGeometry args={[crescentShape]} />
-              <meshBasicMaterial color="#fef08a" />
+            {/* Crescent Moon (Using clean geometric 2-arc shape with high tessellation) */}
+            <mesh position={[-0.35, 1.6, -2.4]} rotation={[0, 0, Math.PI / 10]}>
+              <shapeGeometry args={[crescentShape, 32]} />
+              <meshBasicMaterial color="#facc15" side={THREE.DoubleSide} />
             </mesh>
             
             {/* Twinkling Stars (Significantly larger and spread out to all corners of the window) */}
@@ -828,8 +843,8 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
             {/* Right Column: Hero Content */}
             <div className="w-[65%] h-full flex flex-col justify-center pl-8 pr-16 relative overflow-hidden">
               
-              <div className="text-indigo-600 font-mono text-3xl mb-6 tracking-widest uppercase z-10">
-                <span className="inline-block mr-3 text-indigo-500/50">{">"}</span>
+              <div className="text-blue-600 font-mono text-3xl mb-6 tracking-widest uppercase z-10">
+                <span className="inline-block mr-3 text-blue-500/50">{">"}</span>
                 Hello World, I am
               </div>
               
@@ -843,10 +858,24 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
               </div>
               
               <div className="flex gap-6 z-10 mt-4">
-                <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-5 px-10 rounded-xl shadow-[0_0_30px_rgba(79,70,229,0.4)] transition-all hover:scale-105 active:scale-95 cursor-pointer text-lg tracking-wider uppercase">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const el = document.getElementById('scroll-projects');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 px-10 rounded-xl shadow-[0_0_30px_rgba(59,130,246,0.4)] transition-all hover:scale-105 active:scale-95 cursor-pointer text-lg tracking-wider uppercase"
+                >
                   View My Projects
                 </button>
-                <button className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-5 px-10 rounded-xl border border-slate-300 hover:border-slate-400 transition-all cursor-pointer text-lg tracking-wider uppercase">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const el = document.getElementById('scroll-resume');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-5 px-10 rounded-xl border border-slate-300 hover:border-slate-400 transition-all cursor-pointer text-lg tracking-wider uppercase"
+                >
                   Contact Me
                 </button>
               </div>
@@ -1217,8 +1246,8 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
         <mesh position={[0, -0.278, 0]}>
           <boxGeometry args={[0.282, 0.004, 0.522]} />
           <meshStandardMaterial 
-            color="#8b5cf6" 
-            emissive="#8b5cf6" 
+            color="#38bdf8" 
+            emissive="#38bdf8" 
             emissiveIntensity={isDarkMode ? 3.0 : 1.0} 
           />
         </mesh>
@@ -1533,21 +1562,21 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           <meshStandardMaterial color="#090a0f" roughness={0.15} metalness={0.9} />
         </mesh>
 
-        {/* Lit Fabric Panels on the inner frame (Soft textured purple) */}
+        {/* Lit Fabric Panels on the inner frame (Soft textured light blue) */}
         {/* Base inner strip */}
         <mesh position={[0.01, 0.031, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[0.16, 0.16]} />
-          <meshStandardMaterial color="#c4b5fd" emissive="#8b5cf6" emissiveIntensity={isDarkMode ? 0.4 : 0.1} roughness={1.0} />
+          <meshStandardMaterial color="#bae6fd" emissive="#38bdf8" emissiveIntensity={isDarkMode ? 0.4 : 0.1} roughness={1.0} />
         </mesh>
         {/* Spine inner strip */}
         <mesh position={[-0.069, 0.22, 0]} rotation={[0, Math.PI / 2, 0]}>
           <planeGeometry args={[0.16, 0.38]} />
-          <meshStandardMaterial color="#c4b5fd" emissive="#8b5cf6" emissiveIntensity={isDarkMode ? 0.4 : 0.1} roughness={1.0} />
+          <meshStandardMaterial color="#bae6fd" emissive="#38bdf8" emissiveIntensity={isDarkMode ? 0.4 : 0.1} roughness={1.0} />
         </mesh>
         {/* Top arm inner strip */}
         <mesh position={[0.01, 0.409, 0]} rotation={[Math.PI / 2, 0, 0]}>
           <planeGeometry args={[0.16, 0.16]} />
-          <meshStandardMaterial color="#c4b5fd" emissive="#8b5cf6" emissiveIntensity={isDarkMode ? 0.4 : 0.1} roughness={1.0} />
+          <meshStandardMaterial color="#bae6fd" emissive="#38bdf8" emissiveIntensity={isDarkMode ? 0.4 : 0.1} roughness={1.0} />
         </mesh>
 
         {/* Levitating Headphone (Sleek Modern Premium Design matching reference) */}
@@ -1747,12 +1776,12 @@ export default function TechRoom({ sector, setSector, activeProject, setActivePr
           <meshStandardMaterial color="#050505" roughness={0.9} metalness={0.1} wireframe={true} transparent opacity={0.3} />
         </mesh>
         
-        {/* Smart Speaker Light Ring (Subtle glowing blue/purple ring near top) */}
+        {/* Smart Speaker Light Ring (Subtle glowing blue ring near top) */}
         <mesh position={[0, 0.075, 0]}>
           <cylinderGeometry args={[0.0385, 0.0385, 0.003, 32]} />
           <meshStandardMaterial 
-            color="#8b5cf6" 
-            emissive="#00d8ff" 
+            color="#38bdf8" 
+            emissive="#0284c7" 
             emissiveIntensity={isDarkMode ? 2.0 : 0.8} 
           />
         </mesh>

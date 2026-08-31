@@ -43,8 +43,8 @@ function CarModel({ isDarkMode, scrollProgress }) {
 
   // Snap function: stays at steps, zooms in transition areas
   const getSnappedProgress = (p) => {
-    // 8 sections (About, Education, Experience, Profiles, Projects, Certificates, Resume, Contact) = 7 steps
-    const steps = 7
+    // 7 sections (About, Education, Experience, Profiles, Projects, Certificates, Resume) = 6 steps
+    const steps = 6
     const x = p * steps
     const i = Math.floor(x)
     const f = x - i
@@ -165,61 +165,72 @@ function CarModel({ isDarkMode, scrollProgress }) {
   )
 }
 
-export default function ScrollCar({ isDarkMode }) {
+function ScrollCar({ isDarkMode }) {
   const [scrollProgress, setScrollProgress] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const scrollTimeoutRef = useRef(null)
+  const offsetsRef = useRef({ startOffset: 0, endOffset: 0, totalRange: 0 })
+
+  // Compute section offsets only on resize or mount to avoid layout thrashing during scroll
+  const measureOffsets = () => {
+    const startEl = document.getElementById('scroll-about')
+    const endEl = document.getElementById('scroll-resume') || document.getElementById('scroll-contact')
+    if (!startEl || !endEl) return
+
+    const getAbsoluteTop = (el) => el.getBoundingClientRect().top + window.scrollY
+    const startOffset = getAbsoluteTop(startEl) - window.innerHeight * 0.85
+    const endOffset = getAbsoluteTop(endEl) + endEl.offsetHeight - window.innerHeight * 0.55
+    const totalRange = Math.max(1, endOffset - startOffset)
+
+    offsetsRef.current = { startOffset, endOffset, totalRange }
+  }
 
   useEffect(() => {
+    measureOffsets()
+
+    let ticking = false
     const handleScroll = () => {
-      const startEl = document.getElementById('scroll-about')
-      const endEl = document.getElementById('scroll-contact')
-      if (!startEl || !endEl) {
-        setIsVisible(false)
-        return
-      }
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const { startOffset, totalRange } = offsetsRef.current
+          const currentScroll = window.scrollY
 
-      // Helper to calculate absolute top position of an element relative to the document
-      const getAbsoluteTop = (el) => {
-        return el.getBoundingClientRect().top + window.scrollY
-      }
+          const visible = currentScroll >= startOffset && currentScroll <= offsetsRef.current.endOffset + 300
+          setIsVisible(visible)
 
-      const startOffset = getAbsoluteTop(startEl) - window.innerHeight * 0.85
-      const endOffset = getAbsoluteTop(endEl) + endEl.offsetHeight - window.innerHeight * 0.55
-      
-      const currentScroll = window.scrollY
+          if (visible && totalRange > 0) {
+            const rawProgress = Math.max(0, Math.min(1, (currentScroll - startOffset) / totalRange))
+            
+            if (scrollTimeoutRef.current) {
+              clearTimeout(scrollTimeoutRef.current)
+            }
 
-      // Visible starting from the Education section and below
-      setIsVisible(currentScroll >= startOffset)
+            setScrollProgress(rawProgress)
 
-      const totalRange = endOffset - startOffset
-      if (totalRange > 0) {
-        const rawProgress = Math.max(0, Math.min(1, (currentScroll - startOffset) / totalRange))
-        
-        // Clear previous timeout
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current)
-        }
-
-        setScrollProgress(rawProgress)
-
-        // When scrolling stops, snap to the nearest section
-        scrollTimeoutRef.current = setTimeout(() => {
-          const steps = 7
-          const snapped = Math.round(rawProgress * steps) / steps
-          setScrollProgress(snapped)
-        }, 150)
+            scrollTimeoutRef.current = setTimeout(() => {
+              const steps = 6
+              const snapped = Math.round(rawProgress * steps) / steps
+              setScrollProgress(snapped)
+            }, 120)
+          }
+          ticking = false
+        })
+        ticking = true
       }
     }
 
-    window.addEventListener('scroll', handleScroll)
-    window.addEventListener('resize', handleScroll)
-    // Run after a short delay to ensure rendering and offset positions are fully settled
-    const timeout = setTimeout(handleScroll, 150)
+    const handleResize = () => {
+      measureOffsets()
+      handleScroll()
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleResize, { passive: true })
+    const timeout = setTimeout(handleResize, 300)
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', handleScroll)
+      window.removeEventListener('resize', handleResize)
       clearTimeout(timeout)
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current)
@@ -230,10 +241,13 @@ export default function ScrollCar({ isDarkMode }) {
   return (
     <div 
       className={`w-full h-full transition-opacity duration-300 ${
-        isVisible ? 'opacity-100' : 'opacity-0'
+        isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >
       <Canvas
+        frameloop={isVisible ? 'always' : 'never'}
+        dpr={[1, 1.5]}
+        gl={{ powerPreference: 'high-performance', antialias: false }}
         orthographic
         camera={{
           zoom: 55, // Clean aspect-ratio preserving zoom
@@ -244,10 +258,12 @@ export default function ScrollCar({ isDarkMode }) {
         style={{ background: 'transparent' }}
       >
         <ambientLight intensity={isDarkMode ? 0.3 : 1.2} />
-        <directionalLight position={[0, 10, 0]} intensity={isDarkMode ? 0.4 : 1.5} castShadow />
+        <directionalLight position={[0, 10, 0]} intensity={isDarkMode ? 0.4 : 1.5} />
         {isDarkMode && <pointLight position={[0, 4, 0]} intensity={2} color="#00d8ff" />}
         <CarModel isDarkMode={isDarkMode} scrollProgress={scrollProgress} />
       </Canvas>
     </div>
   )
 }
+
+export default React.memo(ScrollCar)

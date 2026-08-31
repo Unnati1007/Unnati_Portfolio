@@ -1,65 +1,27 @@
 import React, { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 
-const TimelineItem = ({ exp, index }) => {
-  const itemRef = useRef(null);
-  
-  // Track scroll progress of this specific item relative to the viewport
-  const { scrollYProgress } = useScroll({
-    target: itemRef,
-    offset: ["start end", "end center"]
-  });
-
-  // 3D & Parallax transforms: fades in, slides up, scales, and tilts into place
-  const y = useTransform(scrollYProgress, [0, 1], [70, 0]);
-  const rotateX = useTransform(scrollYProgress, [0, 1], [25, 0]);
-  const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
-  const scale = useTransform(scrollYProgress, [0, 1], [0.92, 1]);
-
+const TimelineItem = React.memo(({ exp, index }) => {
   return (
     <motion.div 
-      ref={itemRef}
-      style={{
-        perspective: 1200,
-        transformStyle: "preserve-3d",
-        y,
-        rotateX,
-        opacity,
-        scale
+      initial={{ opacity: 0, y: 30, scale: 0.96 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{
+        type: "spring",
+        stiffness: 90,
+        damping: 15,
+        mass: 0.8,
+        duration: 0.8
       }}
-      className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active mb-12"
+      className="relative flex items-start md:items-center justify-between md:justify-normal md:odd:flex-row-reverse gap-3 sm:gap-4 md:gap-0 group is-active mb-6 sm:mb-10"
     >
       {/* Rotating Blueprint/Tech Gear Node */}
-      <motion.div 
-        whileHover="hover"
-        className="relative flex items-center justify-center w-10 h-10 rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-all duration-300 group-hover:scale-110 group-hover:border-indigo-600 group-hover:text-indigo-600 group-hover:shadow-[0_0_12px_rgba(99,102,241,0.15)]"
+      <div 
+        className="relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-all duration-300 group-hover:scale-110 group-hover:border-blue-600 group-hover:text-blue-600 group-hover:shadow-[0_0_12px_rgba(59,130,246,0.2)] mt-1 md:mt-0"
       >
-        {/* Clean, high-end concentric ripple rings */}
-        <motion.span 
-          variants={{
-            hover: {
-              scale: [1, 1.8],
-              opacity: [0.5, 0],
-              transition: { repeat: Infinity, duration: 1.5, ease: "easeOut" }
-            }
-          }}
-          className="absolute inset-0 rounded-full border border-indigo-400 pointer-events-none"
-        />
-        <motion.span 
-          variants={{
-            hover: {
-              scale: [1, 1.8],
-              opacity: [0.5, 0],
-              transition: { repeat: Infinity, duration: 1.5, delay: 0.5, ease: "easeOut" }
-            }
-          }}
-          className="absolute inset-0 rounded-full border border-indigo-400 pointer-events-none"
-        />
-
-        <motion.svg 
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
-          className="w-5 h-5 fill-none transition-all duration-500 ease-out"
+        <svg 
+          className="w-4 h-4 sm:w-5 sm:h-5 fill-none" 
           viewBox="0 0 24 24" 
           stroke="currentColor" 
           strokeWidth="2" 
@@ -74,24 +36,24 @@ const TimelineItem = ({ exp, index }) => {
           <path d="m8 4 4 4 4-4" />
           <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
           <line x1="19.07" y1="4.93" x2="4.93" y2="19.07" />
-        </motion.svg>
-      </motion.div>
+        </svg>
+      </div>
       
       {/* Experience Card Box with top border slide-reveal animation */}
-      <div className="relative w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-[rgba(15,20,30,0.6)] p-6 rounded-2xl border border-white/5 hover:border-indigo-500/50 transition-all duration-300 overflow-hidden shadow-sm">
+      <div className="relative w-[calc(100%-2.75rem)] sm:w-[calc(100%-3.5rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-slate-200 hover:border-blue-500/50 transition-all duration-300 overflow-hidden shadow-sm">
         {/* Micro-interactive laser beam line at top border */}
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-600 via-blue-400 to-sky-300 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
 
         <div className="flex flex-col mb-2">
-          <h3 className="text-xl font-bold text-white">{exp.company}</h3>
-          <span className="text-indigo-400 font-medium">{exp.role}</span>
-          <span className="text-sm text-slate-500 font-mono mt-1">{exp.date}</span>
+          <h3 className="text-base sm:text-lg md:text-xl font-bold text-slate-900">{exp.company}</h3>
+          <span className="text-xs sm:text-sm md:text-base text-blue-600 font-semibold">{exp.role}</span>
+          <span className="text-[11px] sm:text-xs text-slate-500 font-mono mt-0.5 sm:mt-1">{exp.date}</span>
         </div>
-        <p className="text-slate-300 text-sm leading-relaxed">{exp.description}</p>
+        <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">{exp.description}</p>
       </div>
     </motion.div>
   );
-};
+});
 
 const Experience = () => {
   const experiences = [
@@ -116,38 +78,26 @@ const Experience = () => {
   ];
 
   return (
-    <section className="py-8 px-8 max-w-5xl mx-auto" id="experience">
+    <section className="py-6 sm:py-8 px-4 sm:px-8 max-w-5xl mx-auto" id="experience">
       <motion.div
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
       >
-        <div className="mb-8">
-          <span className="text-indigo-600 font-mono text-xs md:text-sm tracking-widest uppercase block mb-1 font-bold">
+        <div className="mb-6 sm:mb-8">
+          <span className="text-blue-600 font-mono text-[11px] sm:text-xs md:text-sm tracking-widest uppercase block mb-1 font-bold">
             // 02. Professional History
           </span>
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 inline-block relative">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 inline-block relative">
             Experience
-            <span className="absolute -bottom-1.5 left-0 w-12 h-0.5 bg-indigo-500 rounded-full"></span>
+            <span className="absolute -bottom-1.5 left-0 w-10 sm:w-12 h-0.5 bg-blue-500 rounded-full"></span>
           </h2>
         </div>
         
-        <div className="space-y-4 relative">
-          {/* Bold Glowing Laser Timeline Line */}
-          <div className="absolute top-0 bottom-0 left-5 md:left-1/2 -translate-x-1/2 w-[4px] bg-slate-200/80 rounded-full overflow-hidden">
-            <motion.div
-              animate={{
-                y: ["-160px", "900px"]
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              className="absolute left-0 right-0 h-40 bg-gradient-to-b from-transparent via-indigo-600 to-transparent shadow-[0_0_12px_#4f46e5]"
-            />
-          </div>
+        <div className="space-y-2 sm:space-y-4 relative">
+          {/* Solid, Continuous Blue Timeline Line */}
+          <div className="absolute top-4 bottom-4 left-4 sm:left-5 md:left-1/2 -translate-x-1/2 w-[3px] bg-gradient-to-b from-blue-400 via-blue-500 to-blue-300 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.25)]" />
 
           {experiences.map((exp, index) => (
             <TimelineItem key={index} exp={exp} index={index} />
@@ -158,4 +108,4 @@ const Experience = () => {
   );
 };
 
-export default Experience;
+export default React.memo(Experience);

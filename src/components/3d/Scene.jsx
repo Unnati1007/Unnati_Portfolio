@@ -45,12 +45,37 @@ export default function Scene({
   isDarkMode,
   setIsDarkMode
 }) {
+  const [isHeroVisible, setIsHeroVisible] = React.useState(true);
+
+  // Pause 3D canvas render loop when scrolled deep into portfolio sections
+  React.useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const heroHeight = window.innerHeight;
+          setIsHeroVisible(window.scrollY < heroHeight * 1.15);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div 
       className={`fixed inset-0 z-0 ${introComplete ? 'pointer-events-auto' : 'pointer-events-none'}`} 
       style={{ backgroundColor: '#000000' }}
     >
-      <Canvas camera={{ position: [0, 2, 9], fov: 45 }}>
+      <Canvas 
+        frameloop={isHeroVisible ? 'always' : 'never'}
+        dpr={[1, 1.5]}
+        camera={{ position: [0, 2, 9], fov: 45 }}
+        gl={{ powerPreference: 'high-performance', antialias: false }}
+      >
         <ResponsiveCamera isDarkMode={isDarkMode} introComplete={introComplete} />
         
         {/* Studio Lighting - Dimmed for car, and dynamic for day vs cozy night mode */}
