@@ -2,6 +2,7 @@
 
 <div align="center">
 
+[![Domain](https://img.shields.io/badge/Domain-unnatijadon.in-2563eb?style=for-the-badge&logo=googlechrome&logoColor=white)](https://unnatijadon.in/)
 [![Live Portfolio](https://img.shields.io/badge/Live_Demo-portfoliouj.vercel.app-blue?style=for-the-badge&logo=vercel)](https://portfoliouj.vercel.app/)
 [![GitHub](https://img.shields.io/badge/GitHub-Unnati1007-181717?style=for-the-badge&logo=github)](https://github.com/Unnati1007)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Unnati_Jadon-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/unnati-jadon)
@@ -101,6 +102,7 @@ Follow these steps to run the portfolio on your local machine:
 
 ## 📬 Connect with Me
 
+- **Website**: [unnatijadon.in](https://unnatijadon.in/)
 - **Email**: [unnatijadon1007@gmail.com](mailto:unnatijadon1007@gmail.com)
 - **LinkedIn**: [linkedin.com/in/unnati-jadon](https://linkedin.com/in/unnati-jadon)
 - **GitHub**: [github.com/Unnati1007](https://github.com/Unnati1007)
