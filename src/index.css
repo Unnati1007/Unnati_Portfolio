@@ -104,6 +104,11 @@ body, button, input, select, textarea, .font-sans {
   color: #475569 !important;
 }
 
+.light-mode-portfolio .bg-clip-text {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
 /* Glass card styling updated for light mode */
 .light-mode-portfolio div[class*="bg-[rgba(15,20,30"],
 .light-mode-portfolio div[class*="bg-white/10"],

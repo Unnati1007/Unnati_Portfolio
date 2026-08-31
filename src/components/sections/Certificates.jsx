@@ -17,14 +17,22 @@ const Certificates = () => {
   ];
 
   return (
-    <section className="py-20 px-8 max-w-5xl mx-auto" id="achievements">
+    <section className="py-8 px-8 max-w-5xl mx-auto" id="achievements">
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
       >
-        <h2 className="text-3xl md:text-4xl font-bold mb-10 border-b border-indigo-500/30 pb-4 inline-block">Achievements & Leadership</h2>
+        <div className="mb-8">
+          <span className="text-indigo-600 font-mono text-xs md:text-sm tracking-widest uppercase block mb-1 font-bold">
+            // 05. Recognition & Impact
+          </span>
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 inline-block relative">
+            Achievements & Leadership
+            <span className="absolute -bottom-1.5 left-0 w-12 h-0.5 bg-indigo-500 rounded-full"></span>
+          </h2>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {achievements.map((item, index) => (

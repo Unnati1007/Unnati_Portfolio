@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 const Contact = () => {
   return (
-    <section className="py-20 px-8 max-w-5xl mx-auto text-center" id="contact">
+    <section className="py-8 px-8 max-w-5xl mx-auto text-center" id="contact">
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}

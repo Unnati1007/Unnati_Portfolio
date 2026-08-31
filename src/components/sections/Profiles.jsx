@@ -13,14 +13,22 @@ const Profiles = () => {
   ];
 
   return (
-    <section className="py-20 px-8 max-w-5xl mx-auto" id="profiles">
+    <section className="py-8 px-8 max-w-5xl mx-auto" id="profiles">
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
       >
-        <h2 className="text-3xl md:text-4xl font-bold mb-10 border-b border-indigo-500/30 pb-4 inline-block">Coding Profiles</h2>
+        <div className="mb-8">
+          <span className="text-indigo-600 font-mono text-xs md:text-sm tracking-widest uppercase block mb-1 font-bold">
+            // 03. Digital Presence
+          </span>
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 inline-block relative">
+            Coding Profiles
+            <span className="absolute -bottom-1.5 left-0 w-12 h-0.5 bg-indigo-500 rounded-full"></span>
+          </h2>
+        </div>
         
         <div className="flex flex-wrap gap-4">
           {profiles.map((profile, index) => (
